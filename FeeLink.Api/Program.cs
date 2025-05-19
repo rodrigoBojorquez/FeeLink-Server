@@ -1,6 +1,7 @@
 using FeeLink.Infrastructure.Common.DependencyInjection;
 using FeeLink.Api.Common.DependencyInjection;
 using FeeLink.Api.Common.HttpConfigurations;
+using FeeLink.Api.WebSockets;
 using FeeLink.Application.DependencyInjection;
 using Serilog;
 
@@ -49,5 +50,8 @@ app.UseHttpsRedirection();
 app.UseGlobalErrorHandling();
 app.UseAuthorization();
 app.MapControllers();
+app.UseWebSockets();
+
+app.MapSensorDataWS();
 
 app.Run();
