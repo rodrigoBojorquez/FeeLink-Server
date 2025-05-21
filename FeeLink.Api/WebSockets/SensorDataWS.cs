@@ -1,16 +1,20 @@
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json.Serialization;
 using FeeLink.Application.UseCases.Sensors.Commands.SaveData;
 using FeeLink.Infrastructure.Services.Esp;
 using FeeLink.Infrastructure.Services.WebSocket;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Newtonsoft.Json;
 
 namespace FeeLink.Api.WebSockets;
 
 public static class SensorDataWS
 {
+    public record WebSocketRequest(string Cmd, string Data);
+    
     public static WebApplication MapSensorDataWS(this WebApplication app)
     {
         app.Map("/ws/sensor-data",
@@ -67,6 +71,7 @@ public static class SensorDataWS
                         }
                         case "mobile":
                         {
+                            var json = JsonConvert.DeserializeObject<object>(msg);
                             // Procesar datos para la app móvil
                             var command = new SaveSensorDataCommand();
                             var result = await mediator.Send(command);
