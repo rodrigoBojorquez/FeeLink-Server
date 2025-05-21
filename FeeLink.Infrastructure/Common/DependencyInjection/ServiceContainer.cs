@@ -9,6 +9,7 @@ using FeeLink.Infrastructure.Persistence;
 using FeeLink.Infrastructure.Services.Assets;
 using FeeLink.Infrastructure.Services.Authentication;
 using FeeLink.Infrastructure.Services.Discord;
+using FeeLink.Infrastructure.Services.Esp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +39,7 @@ public static class ServiceContainer
         services.AddScoped<ImageService>();
         services.AddScoped<ITokenService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
-        //Blob service
+        services.AddScoped<EspJsonReconstructor>();
         
         // DbContext dependiendo del ambiente
         services.AddDbContext<FeeLinkDbContext>(opt =>

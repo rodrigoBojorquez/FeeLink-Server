@@ -9,5 +9,8 @@ public class Patient
     public string Gender { get; set; } = string.Empty;
     public float Height { get; set; }
     public float Weight { get; set; }
+    
     public Guid UserId { get; set; }
+    // Teraphist - Quien tiene en movil
+    public User User { get; set; } = null!;
 }
