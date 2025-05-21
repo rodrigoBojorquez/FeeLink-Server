@@ -10,6 +10,7 @@ using FeeLink.Infrastructure.Services.Assets;
 using FeeLink.Infrastructure.Services.Authentication;
 using FeeLink.Infrastructure.Services.Discord;
 using FeeLink.Infrastructure.Services.Esp;
+using FeeLink.Infrastructure.Services.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,9 @@ public static class ServiceContainer
         services.AddScoped<ITokenService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<EspJsonReconstructor>();
+        
+        // Singletons
+        services.AddSingleton<WebSocketConnectionManager>();
         
         // DbContext dependiendo del ambiente
         services.AddDbContext<FeeLinkDbContext>(opt =>
