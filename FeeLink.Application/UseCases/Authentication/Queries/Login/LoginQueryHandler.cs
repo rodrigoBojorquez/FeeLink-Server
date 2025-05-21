@@ -21,24 +21,24 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthResult>
         _passwordService = passwordService;
     }
 
-    public async Task<ErrorOr<AuthResult>> Handle(LoginQuery query, CancellationToken cancellationToken)
+    public async Task<ErrorOr<AuthResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByEmailAsync(query.Email);
+        var user = await _userRepository.GetByEmailAsync(request.Email);
 
         if (user is null)
             return Errors.Authentication.InvalidCredentials;
 
-        if (user.GoogleId is not null)
-            return Errors.Authentication.InvalidCredentials;
+        bool passwordIsValid = _passwordService.VerifyPassword(request.Password, user.Password);
 
-        if (!_passwordService.VerifyPassword(query.Password, user.Password!))
+        if (!passwordIsValid)
             return Errors.Authentication.InvalidCredentials;
 
         var token = await _tokenService.GenerateTokenAsync(user);
         var refreshToken = _tokenService.GenerateRefreshToken();
+
         await _tokenService.StoreRefreshTokenAsync(refreshToken, user.Id);
 
-        return new AuthResult(user.Id, token, refreshToken, user.Email, false,
-            user.Name, user.LastName);
+        return new AuthResult(
+            user.Id, token, refreshToken, user.Email, false, user.Name, user.LastName, user.Picture);
     }
 }

@@ -12,10 +12,10 @@
 *.sln.docstates
 .env
 .idea/
-Simplify.Api/assets/*
-Simplify.Api/logs
+FeeLink.Api/assets/*
+FeeLink.Api/logs
 
-Simplify.Api/Data/
+FeeLink.Api/Data/
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
