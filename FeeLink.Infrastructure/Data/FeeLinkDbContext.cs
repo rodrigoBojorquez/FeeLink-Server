@@ -15,8 +15,6 @@ public class FeeLinkDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<Patient> Patients { get; set; }
-    public DbSet<Sensor> Sensors { get; set; }
-    public DbSet<SensorType> SensorTypes { get; set; }
     public DbSet<SensorReading> SensorReadings { get; set; }
     public DbSet<Toy> Toys { get; set; }
     

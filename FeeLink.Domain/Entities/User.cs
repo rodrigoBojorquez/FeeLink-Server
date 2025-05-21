@@ -1,5 +1,6 @@
 namespace FeeLink.Domain.Entities;
 
+// La persona que tiene la cuenta movil - Terapeuta
 public class User
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();

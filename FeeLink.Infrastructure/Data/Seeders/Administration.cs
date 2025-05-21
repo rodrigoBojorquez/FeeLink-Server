@@ -38,9 +38,21 @@ public static partial class Seeder
 
                 await context.Set<Role>().AddRangeAsync(roles);
                 await context.SaveChangesAsync();
+                
+                // Creacion de la compañia
+                var company = new Company
+                {
+                    Name = "Centro de Terapia Infantil 'Tilin'",
+                    Address = "123 Calle Principal",
+                    Rfc = "CEJ123456789",
+                    PhoneNumber = "+52-555-123-4567",
+                };
+
+                await context.Set<Company>().AddAsync(company);
+                await context.SaveChangesAsync();
 
                 var rolesIds = roles.ToDictionary(r => r.Name, r => r.Id);
-                
+
                 // Asignacion de usuarios prinpales
                 var users = new List<User>
                 {
@@ -62,11 +74,61 @@ public static partial class Seeder
                     },
                     new User
                     {
-                        Name = "Alexis",
-                        LastName = "Dolores",
-                        Email = "alexisdanieldr@gmail.com",
+                        Name = "Andrea",
+                        LastName = "Gomez",
+                        Email = "andrea@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
+                    },
+                    new User
+                    {
+                        Name = "Diego",
+                        LastName = "Aleman",
+                        Email = "diego@gmail.com",
+                        Password = "password",
+                        RoleId = rolesIds["SuperAdmin"]
+                    },
+                    new User
+                    {
+                        Name = "Fernando",
+                        LastName = "Lopez",
+                        Email = "fernando@gmail.com",
+                        Password = "password",
+                        RoleId = rolesIds["SuperAdmin"]
+                    },
+                    new User
+                    {
+                        Name = "Michelle",
+                        LastName = "Hernandez",
+                        Email = "michelle@gmail.com",
+                        Password = "password",
+                        RoleId = rolesIds["SuperAdmin"]
+                    },
+                    new User
+                    {
+                        Name = "Ricardo",
+                        LastName = "Chi",
+                        Email = "ricardo@gmail.com",
+                        Password = "password",
+                        RoleId = rolesIds["SuperAdmin"]
+                    },
+                    new User
+                    {
+                        Name = "Joel",
+                        LastName = "Vargas",
+                        Email = "joel@gmail.com",
+                        Password = "password",
+                        RoleId = rolesIds["Therapist"],
+                        CompanyId = company.Id
+                    },
+                    new User
+                    {
+                        Name = "Renata",
+                        LastName = "Mancilla",
+                        Email = "renata@gmail.com",
+                        Password = "password",
+                        RoleId = rolesIds["ClinicAdmin"],
+                        CompanyId = company.Id
                     }
                 };
 
@@ -75,21 +137,9 @@ public static partial class Seeder
                 foreach (var user in users)
                 {
                     user.Password = passwordService.HashPassword(user.Password!);
-                    
                 }
 
                 await context.Set<User>().AddRangeAsync(users);
-                await context.SaveChangesAsync();
-                
-                var company = new Company
-                {
-                    Name = "Centro de Terapia Infantil 'Tilin'",
-                    Address = "123 Calle Principal",
-                    Rfc = "CEJ123456789",
-                    PhoneNumber = "+52-555-123-4567",
-                };
-                
-                await context.Set<Company>().AddAsync(company);
                 await context.SaveChangesAsync();
             }
         }

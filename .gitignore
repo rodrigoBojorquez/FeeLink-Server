@@ -10,16 +10,12 @@
 *.user
 *.userosscache
 *.sln.docstates
-Simplify.Api/appsettings.json
-Simplify.Api/appsettings.Development.json
 .env
 .idea/
 Simplify.Api/assets/*
 Simplify.Api/logs
 
 Simplify.Api/Data/
-*/appsettings.json
-*/appsettings.Development.json
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
