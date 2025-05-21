@@ -20,6 +20,8 @@
     <ItemGroup>
       <Folder Include="UseCases\Sensors\Common\" />
       <Folder Include="UseCases\Sensors\Queries\" />
+      <Folder Include="UseCases\Toys\Common\" />
+      <Folder Include="UseCases\Toys\Queries\" />
     </ItemGroup>
 
 </Project>
