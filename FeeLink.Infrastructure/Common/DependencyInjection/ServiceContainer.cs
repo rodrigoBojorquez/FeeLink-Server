@@ -31,8 +31,9 @@ public static class ServiceContainer
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
-
         services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IToyRepository, ToyRepository>();
         
         // Servicios
         services.AddScoped<IPasswordService, PasswordService>();
