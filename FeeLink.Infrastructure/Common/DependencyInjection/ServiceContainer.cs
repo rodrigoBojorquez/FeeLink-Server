@@ -9,7 +9,6 @@ using FeeLink.Infrastructure.Persistence;
 using FeeLink.Infrastructure.Services.Assets;
 using FeeLink.Infrastructure.Services.Authentication;
 using FeeLink.Infrastructure.Services.Discord;
-using FeeLink.Infrastructure.Services.Esp;
 using FeeLink.Infrastructure.Services.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,41 +33,32 @@ public static class ServiceContainer
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IToyRepository, ToyRepository>();
-        
+
         // Servicios
         services.AddScoped<IPasswordService, PasswordService>();
         // services.AddScoped<IGovernmentApiService, GovernmentApiService>();
         services.AddScoped<ImageService>();
         services.AddScoped<ITokenService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<EspJsonReconstructor>();
-        
+
         // Singletons
         services.AddSingleton<WebSocketConnectionManager>();
-        
+
         // DbContext dependiendo del ambiente
         services.AddDbContext<FeeLinkDbContext>(opt =>
         {
             if (env.IsDevelopment())
             {
                 opt.UseSqlite(config.GetConnectionString("FeeLinkConnection")).UseAsyncSeeding(
-                    async (context, _, ct) =>
-                    {
-                        await Seeder.Administration.SeedAsync(context);
-                    }).UseSeeding((context, _) =>
-                {
-                    Seeder.Administration.SeedAsync(context).Wait();
-                });
+                        async (context, _, ct) => { await Seeder.Administration.SeedAsync(context); })
+                    .UseSeeding((context, _) => { Seeder.Administration.SeedAsync(context).Wait(); });
             }
             else
             {
                 opt.UseNpgsql(config.GetConnectionString("FeeLinkConnection")).UseAsyncSeeding(async (context, _, ct) =>
                 {
                     await Seeder.Administration.SeedAsync(context);
-                }).UseSeeding((context, _) =>
-                {
-                    Seeder.Administration.SeedAsync(context).Wait();
-                });
+                }).UseSeeding((context, _) => { Seeder.Administration.SeedAsync(context).Wait(); });
             }
         });
 

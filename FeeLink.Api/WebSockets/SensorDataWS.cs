@@ -3,7 +3,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json.Serialization;
 using FeeLink.Application.UseCases.Sensors.Commands.SaveData;
-using FeeLink.Infrastructure.Services.Esp;
 using FeeLink.Infrastructure.Services.WebSocket;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -13,28 +12,28 @@ namespace FeeLink.Api.WebSockets;
 
 public static class SensorDataWS
 {
-    public record WebSocketRequest(string Cmd, string Data);
-    
+    public record WebSocketRequest(string Cmd, Dictionary<string, object> Data);
+
     public static WebApplication MapSensorDataWS(this WebApplication app)
     {
         app.Map("/ws/sensor-data",
-            async (HttpContext context, IMediator mediator, EspJsonReconstructor reconstructor, WebSocketConnectionManager socketManager) =>
+            async (HttpContext context, IMediator mediator, WebSocketConnectionManager socketManager) =>
             {
                 if (!context.WebSockets.IsWebSocketRequest) return;
 
                 var deviceType = context.Request.Query["device"].ToString();
                 var identifier = context.Request.Query["identifier"].ToString();
-                
+
                 if (string.IsNullOrEmpty(deviceType) || string.IsNullOrEmpty(identifier))
                 {
                     context.Response.StatusCode = 400;
                     await context.Response.WriteAsync("Dispositivo o identificador no proporcionado");
                     return;
                 }
-                
+
                 using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                 socketManager.AddSocket(identifier, webSocket);
-                
+
                 var buffer = new byte[1024 * 4];
 
                 while (webSocket.State == WebSocketState.Open)
@@ -57,24 +56,23 @@ public static class SensorDataWS
                     {
                         case "esp32":
                         {
-                            reconstructor.AddFragment(msg);
-                            // Procesar datos para esp32
-                            if (reconstructor.IsComplete())
-                            {
-                                var json = reconstructor.GetJson();
-                                var command = new SaveSensorDataCommand();
-                                var result = await mediator.Send(command);
-                                reconstructor.Clear();
-                            }
-
+                            // var command = new SaveSensorDataCommand();
+                            // var result = await mediator.Send(command);
                             break;
                         }
                         case "mobile":
                         {
-                            var json = JsonConvert.DeserializeObject<object>(msg);
-                            // Procesar datos para la app móvil
-                            var command = new SaveSensorDataCommand();
-                            var result = await mediator.Send(command);
+                            var request = JsonConvert.DeserializeObject<WebSocketRequest>(msg);
+                            if (request is null || string.IsNullOrWhiteSpace(request.Cmd)) break;
+
+                            switch (request.Cmd.ToLower())
+                            {
+                                case "open":
+                                {
+                                    break;
+                                }
+                            }
+
                             break;
                         }
                     }

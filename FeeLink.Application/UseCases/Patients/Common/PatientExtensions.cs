@@ -13,8 +13,7 @@ public static class PatientExtensions
             Age: patient.Age,
             Gender: patient.Gender,
             Height: patient.Height,
-            Weight: patient.Weight,
-            UserId: patient.UserId
+            Weight: patient.Weight
         );
     }
 }

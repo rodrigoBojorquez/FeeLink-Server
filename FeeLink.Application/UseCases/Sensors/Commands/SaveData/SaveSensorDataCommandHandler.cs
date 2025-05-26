@@ -1,12 +1,23 @@
 using ErrorOr;
+using FeeLink.Application.Interfaces.Repositories;
+using FeeLink.Domain.Entities;
 using MediatR;
 
 namespace FeeLink.Application.UseCases.Sensors.Commands.SaveData;
 
-public class SaveSensorDataCommandHandler : IRequestHandler<SaveSensorDataCommand, ErrorOr<Created>>
+public class SaveSensorDataCommandHandler(ISensorReadingRepository sensorReadingRepository) : IRequestHandler<SaveSensorDataCommand, ErrorOr<Created>>
 {
-    public Task<ErrorOr<Created>> Handle(SaveSensorDataCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Created>> Handle(SaveSensorDataCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var sensorReading = new SensorReading
+        {
+            ToyId = request.ToyId,
+            Value = request.Value,
+            Metric = request.Metric,
+        };
+
+        await sensorReadingRepository.InsertAsync(sensorReading);
+
+        return Result.Created;
     }
 }

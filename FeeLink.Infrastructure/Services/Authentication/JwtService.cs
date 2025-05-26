@@ -118,8 +118,7 @@ public class JwtService : ITokenService
         var token = await GenerateTokenAsync(existToken.User);
         var user = existToken.User;
 
-        return new AuthResult(Id: user.Id, AccessToken: token, RefreshToken: existToken.Token, Email: user.Email,
-            GoogleAuth: !string.IsNullOrEmpty(user.GoogleId), Name: user.Name, LastName: user.LastName,
+        return new AuthResult(Id: user.Id, AccessToken: token, RefreshToken: existToken.Token, Email: user.Email, Name: user.Name, LastName: user.LastName,
             Picture: user.Picture);
     }
 

@@ -10,5 +10,6 @@ public record CreatePatientCommand(
     string Gender,
     float Height,
     float Weight,
-    Guid UserId)
+    List<Guid>? TherapistIds = null,
+    List<Guid>? TutorsIds = null)
     : IRequest<ErrorOr<Created>>;

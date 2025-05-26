@@ -5,7 +5,6 @@ public record AuthResult(
     string AccessToken,
     string RefreshToken,
     string? Email = "",
-    bool GoogleAuth = false,
     string? Name = "",
     string? LastName = null,
     string? Picture = null);
