@@ -8,12 +8,14 @@ public class UserConfig : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.HasMany<TherapistAssignment>().WithOne()
+        builder.HasMany(u => u.TherapistAssignments)
+            .WithOne(ta => ta.User)
             .HasForeignKey(ta => ta.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-        
-        builder.HasMany<TutorAssignment>().WithOne()
-            .HasForeignKey(ta => ta.UserId)
+
+        builder.HasMany(u => u.TutorAssignments)
+            .WithOne(tu => tu.User)
+            .HasForeignKey(tu => tu.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

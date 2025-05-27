@@ -8,6 +8,11 @@ public class ToyConfig : IEntityTypeConfiguration<Toy>
 {
     public void Configure(EntityTypeBuilder<Toy> builder)
     {
-        builder.HasMany<SensorReading>().WithOne().OnDelete(DeleteBehavior.Cascade);
+        builder.HasKey(t => t.Id);
+        
+        builder.HasOne(t => t.Patient)
+            .WithOne(p => p.Toy)
+            .HasForeignKey<Toy>(t => t.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -9,8 +9,7 @@ namespace FeeLink.Application.UseCases.Toys.Queries.ListLinkedWithUser;
 
 public class ListLinkedToysWithUserQueryHandler(
     IToyRepository toyRepository,
-    IUserRepository userRepository,
-    IPatientRepository patientRepository)
+    IUserRepository userRepository)
     : IRequestHandler<ListLinkedToysWithUserQuery, ErrorOr<ListResult<ToyResult>>>
 {
     public async Task<ErrorOr<ListResult<ToyResult>>> Handle(ListLinkedToysWithUserQuery request,

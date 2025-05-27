@@ -44,7 +44,7 @@ public static partial class Seeder
 
                 await context.Set<Role>().AddRangeAsync(roles);
                 await context.SaveChangesAsync();
-                
+
                 // Creacion de la compañia
                 var company = new Company
                 {
@@ -142,6 +142,8 @@ public static partial class Seeder
                         LastName = "Dzul",
                         Email = "tutor@gmail.com",
                         Password = "password",
+                        RoleId = rolesIds["Tutor"],
+                        CompanyId = company.Id
                     },
                     new User
                     {
@@ -149,6 +151,8 @@ public static partial class Seeder
                         LastName = "Rodriguez",
                         Email = "eduardo@gmail.com",
                         Password = "password",
+                        RoleId = rolesIds["Tutor"],
+                        CompanyId = company.Id
                     }
                 };
 
@@ -158,12 +162,12 @@ public static partial class Seeder
                 {
                     user.Password = passwordService.HashPassword(user.Password!);
                 }
-                
-                var userIds = users.ToDictionary(u => u.Email, u => u.Id);
 
                 await context.Set<User>().AddRangeAsync(users);
                 await context.SaveChangesAsync();
-                
+
+                var userIds = users.ToDictionary(u => u.Email, u => u.Id);
+
                 // Agregar pacientes 
                 var patients = new List<Patient>
                 {
@@ -190,6 +194,8 @@ public static partial class Seeder
                 await context.Set<Patient>().AddRangeAsync(patients);
                 await context.SaveChangesAsync();
                 
+                var patientIds = patients.ToDictionary(p => p.Name, p => p.Id);
+
                 // Agregar juguetes
                 var toys = new List<Toy>
                 {
@@ -206,26 +212,29 @@ public static partial class Seeder
                         MacAddress = "00:1A:2B:3C:4D:5B"
                     }
                 };
-                
+
                 await context.Set<Toy>().AddRangeAsync(toys);
                 await context.SaveChangesAsync();
-                
+
                 // Asignar terapeutas a los pacientes
                 var patientTherapistAssignments = new List<TherapistAssignment>
                 {
                     new TherapistAssignment
                     {
-                        PatientId = patients[0].Id,
-                        UserId = users.First(u => u.RoleId == rolesIds["Therapist"]).Id
+                        // Villafaña
+                        PatientId = patientIds["Fernando"],
+                        // Joel Vargas
+                        UserId = userIds["joel@gmail.com"]
                     },
                     new TherapistAssignment
                     {
-                        PatientId = patients[1].Id,
-                        UserId = users.First(u => u.RoleId == rolesIds["Therapist"]).Id
+                        PatientId = patientIds["Sofia"],
+                        UserId = userIds["joel@gmail.com"]
                     }
                 };
                 
                 await context.Set<TherapistAssignment>().AddRangeAsync(patientTherapistAssignments);
+                await context.SaveChangesAsync();
                 
                 // Asignar tutores a los pacientes
                 var patientTutorAssignments = new List<TutorAssignment>
@@ -243,6 +252,7 @@ public static partial class Seeder
                 };
                 
                 await context.Set<TutorAssignment>().AddRangeAsync(patientTutorAssignments);
+                await context.SaveChangesAsync();
             }
         }
     }

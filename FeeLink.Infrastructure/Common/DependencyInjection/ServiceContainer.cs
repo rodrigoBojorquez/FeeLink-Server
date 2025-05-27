@@ -33,6 +33,7 @@ public static class ServiceContainer
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IToyRepository, ToyRepository>();
+        services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 
         // Servicios
         services.AddScoped<IPasswordService, PasswordService>();

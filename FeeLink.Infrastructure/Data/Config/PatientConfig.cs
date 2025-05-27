@@ -8,6 +8,14 @@ public class PatientConfig : IEntityTypeConfiguration<Patient>
 {
     public void Configure(EntityTypeBuilder<Patient> builder)
     {
-        builder.HasOne<Toy>().WithOne().OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(p => p.TherapistAssignments)
+            .WithOne(ta => ta.Patient)
+            .HasForeignKey(ta => ta.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.TutorAssignments)
+            .WithOne(tu => tu.Patient)
+            .HasForeignKey(tu => tu.PatientId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
