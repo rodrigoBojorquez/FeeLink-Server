@@ -1,18 +1,16 @@
 using System.Linq.Expressions;
+using ErrorOr;
 using FeeLink.Application.Common.Results;
 using FeeLink.Application.Interfaces.Repositories;
+using FeeLink.Application.UseCases.Users.Common;
 using FeeLink.Domain.Entities;
 using FeeLink.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace FeeLink.Infrastructure.Persistence;
 
-public class UserRepository : GenericRepository<User>, IUserRepository
+public class UserRepository(FeeLinkDbContext context) : GenericRepository<User>(context), IUserRepository
 {
-    public UserRepository(FeeLinkDbContext context) : base(context)
-    {
-    }
-
     public Task<User?> GetByEmailAsync(string email)
     {
         return Context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == email);
@@ -55,12 +53,37 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         throw new NotImplementedException();
     }
 
+    public async Task<ListResult<UserResult>> ListByToyIdAsync(Guid toyId,
+        CancellationToken cancellationToken = default)
+    {
+        var patientId = await Context.Toys
+            .Where(t => t.Id == toyId)
+            .Select(t => t.PatientId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (patientId == Guid.Empty)
+            return new ListResult<UserResult>([], 0);
+
+        var users = await Context.Users
+            .Where(u =>
+                u.TherapistAssignments.Any(ta => ta.PatientId == patientId) ||
+                u.TutorAssignments.Any(tu => tu.PatientId == patientId)
+            )
+            .ToListAsync(cancellationToken);
+
+        return new ListResult<UserResult>(
+            Items: users.Select(u => u.ToResult()).ToList(),
+            TotalItems: users.Count
+        );
+    }
+
     public new Task<ListResult<User>> ListAllAsync()
     {
         throw new NotImplementedException();
     }
 
-    public new Task<ListResult<User>> ListAsync(int page = 1, int pageSize = 10, Expression<Func<User, bool>>? filter = null)
+    public new Task<ListResult<User>> ListAsync(int page = 1, int pageSize = 10,
+        Expression<Func<User, bool>>? filter = null)
     {
         throw new NotImplementedException();
     }

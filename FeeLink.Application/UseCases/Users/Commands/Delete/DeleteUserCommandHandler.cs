@@ -24,10 +24,7 @@ public class DeleteUserCommandHandler(IRepository<User> repository, IAuthService
         if (user is null)
             return Errors.User.NotFound;
 
-        user.IsDeleted = true;
-        user.DeleteDate = DateTime.UtcNow;
-
-        await repository.UpdateAsync(user);
+        await repository.HardDeleteAsync(user.Id);
 
         return Unit.Value;
     }

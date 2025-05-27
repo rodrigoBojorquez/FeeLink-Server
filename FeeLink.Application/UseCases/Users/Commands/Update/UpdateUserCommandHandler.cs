@@ -28,7 +28,6 @@ public class UpdateUserCommandHandler(
         user.Email = command.Email;
         user.Password = passwordService.HashPassword(command.Password);
         user.RoleId = command.RoleId;
-        user.UpdateDate = DateTime.UtcNow;
 
         await repository.UpdateAsync(user);
 

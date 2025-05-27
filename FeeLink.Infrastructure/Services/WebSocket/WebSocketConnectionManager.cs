@@ -10,9 +10,9 @@ public class WebSocketConnectionManager
         lock (_lock) { _sockets[identifier] = socket; }
     }
 
-    public System.Net.WebSockets.WebSocket? GetSocket(string mac)
+    public System.Net.WebSockets.WebSocket? GetSocket(string identifier)
     {
-        lock (_lock) { _sockets.TryGetValue(mac, out var ws); return ws; }
+        lock (_lock) { _sockets.TryGetValue(identifier, out var ws); return ws; }
     }
 
     public void RemoveSocket(string identifier)

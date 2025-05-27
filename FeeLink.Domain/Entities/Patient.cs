@@ -10,7 +10,8 @@ public class Patient
     public float Height { get; set; }
     public float Weight { get; set; }
     
-    public Guid UserId { get; set; }
-    // Teraphist - Quien tiene en movil
-    public User User { get; set; } = null!;
+    public Toy Toy { get; set; } = null!;
+
+    public List<TherapistAssignment> TherapistAssignments { get; set; } = [];
+    public List<TutorAssignment> TutorAssignments { get; set; } = [];
 }

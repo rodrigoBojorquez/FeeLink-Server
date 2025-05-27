@@ -129,7 +129,7 @@ public class UsersController(
         if (user.Id != userService.GetUserId())
             return Problem(Errors.Authentication.NotAuthorized);
 
-        if (!string.IsNullOrEmpty(user.Picture) && user.GoogleId is null)
+        if (!string.IsNullOrEmpty(user.Picture))
         {
             imageService.Delete(user.Picture);
         }
