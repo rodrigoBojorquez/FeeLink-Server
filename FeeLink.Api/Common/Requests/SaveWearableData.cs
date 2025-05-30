@@ -4,7 +4,6 @@ using FeeLink.Domain.Entities;
 
 namespace FeeLink.Api.Common.Requests;
 
-public record SensorData(float Value, Metric Metric);
 
 public class SaveWearableData
 {

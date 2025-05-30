@@ -25,5 +25,15 @@ public static partial class Errors
             code: "Toy.TurnedOff",
             description: "El juguete está apagado"
         );
+        
+        public static Error InvalidMacAddress => Error.Validation(
+            code: "Toy.InvalidMacAddress",
+            description: "La dirección MAC del juguete es inválida"
+        );
+        
+        public static Error NotLinkedToUser => Error.Validation(
+            code: "Toy.NotLinked",
+            description: "El juguete no está vinculado al usuario"
+        );
     }
 }

@@ -45,6 +45,8 @@ public static class SensorDataWS
                         {
                             [WearableCommandOptions.Save] = data =>
                                 WebSocketCommandProcessor.ProcessEsp32Save(data, mediator, toyRepository, identifier, socketManager),
+                            [WearableCommandOptions.GetDataSendingStatus] = data =>
+                                WebSocketCommandProcessor.WearableResponseWithSendingStatus(data, socketManager)
                         }
                     ),
                     ["mobile"] = msg => HandleDeviceCommands(
@@ -52,8 +54,8 @@ public static class SensorDataWS
                         webSocket,
                         new Dictionary<WearableCommandOptions, Func<JObject, Task<ErrorOr<Success>>>>
                         {
-                            [WearableCommandOptions.GetDataSendingStatus] = data => WebSocketCommandProcessor.ProcessMobileRegister(data, socketManager),
-                            [WearableCommandOptions.SwitchSendingStatus] = data => WebSocketCommandProcessor.ProcessMobileNotify(data)
+                            [WearableCommandOptions.SwitchSendingStatus] = data => WebSocketCommandProcessor.SwitchSendingStatus(identifier, data, socketManager, toyRepository),
+                            [WearableCommandOptions.GetDataSendingStatus] = data => WebSocketCommandProcessor.MobileRequestSendingStatus(data, socketManager)
                         }
                     )
                 };
