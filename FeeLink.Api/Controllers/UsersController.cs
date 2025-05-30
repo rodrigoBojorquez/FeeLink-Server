@@ -7,6 +7,7 @@ using FeeLink.Application.UseCases.Users.Commands.Delete;
 using FeeLink.Application.UseCases.Users.Commands.Update;
 using FeeLink.Application.UseCases.Users.Commands.UpdateProfile;
 using FeeLink.Application.UseCases.Users.Common;
+using FeeLink.Application.UseCases.Users.Queries.ListLinkedWithToy;
 using FeeLink.Application.UseCases.Users.Queries.ListUsers;
 using FeeLink.Domain.Common.Errors;
 using MediatR;
@@ -161,5 +162,14 @@ public class UsersController(
         return result.Match(
             _ => Ok(),
             Problem);
+    }
+
+    [HttpGet("linked/{toyId:guid}")]
+    public async Task<IActionResult> GetLinkedUsers(Guid toyId)
+    {
+        var query = new ListLinkedUsersWithToyQuery(toyId);
+        var result = await mediator.Send(query);
+
+        return result.Match(Ok, Problem);
     }
 }
