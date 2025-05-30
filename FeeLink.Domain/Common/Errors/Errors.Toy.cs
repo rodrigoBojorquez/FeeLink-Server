@@ -20,5 +20,10 @@ public static partial class Errors
             code: "Toy.InvalidData",
             description: "Los datos del juguete son inválidos"
         );
+        
+        public static Error TurnedOff => Error.Failure(
+            code: "Toy.TurnedOff",
+            description: "El juguete está apagado"
+        );
     }
 }

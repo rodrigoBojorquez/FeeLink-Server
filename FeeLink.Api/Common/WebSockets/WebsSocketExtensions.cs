@@ -1,6 +1,8 @@
 using System.Net.WebSockets;
 using System.Text;
 using ErrorOr;
+using FeeLink.Infrastructure.Common.Wearable;
+using Newtonsoft.Json;
 
 namespace FeeLink.Api.Common.WebSockets;
 
@@ -24,5 +26,21 @@ public static class WebsSocketExtensions
     {
         var responseMessage = Encoding.UTF8.GetBytes(message);
         await webSocket.SendAsync(new ArraySegment<byte>(responseMessage), WebSocketMessageType.Text, true, cancellationToken);
+    }
+    
+    public static Task SendCommand<T>(
+        this WebSocket webSocket,
+        WearableCommandOptions cmd,
+        T data,
+        CancellationToken cancellationToken = default)
+    {
+        var envelope = new { Cmd = cmd, Data = data };
+        string json = JsonConvert.SerializeObject(envelope);
+        byte[] buffer = Encoding.UTF8.GetBytes(json);
+        return webSocket.SendAsync(
+            new ArraySegment<byte>(buffer),
+            WebSocketMessageType.Text,
+            true,
+            cancellationToken);
     }
 }
