@@ -1,4 +1,4 @@
-using FeeLink.Infrastructure.Common.DependencyInjection;
+﻿using FeeLink.Infrastructure.Common.DependencyInjection;
 using FeeLink.Api.Common.DependencyInjection;
 using FeeLink.Api.Common.HttpConfigurations;
 using FeeLink.Api.WebSockets;
