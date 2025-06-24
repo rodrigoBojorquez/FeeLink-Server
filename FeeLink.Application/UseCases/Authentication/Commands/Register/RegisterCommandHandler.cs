@@ -34,7 +34,6 @@ public class RegisterCommandHandler(
         var newUser = new User
         {
             Name = command.Name,
-            LastName = command.LastName,
             Email = email,
             Password = passwordService.HashPassword(command.Password),
             RoleId = devRole.Id
@@ -51,8 +50,7 @@ public class RegisterCommandHandler(
             token,
             refreshToken,
             newUser.Email,
-            newUser.Name,
-            newUser.LastName
+            newUser.Name
         );
     }
 }

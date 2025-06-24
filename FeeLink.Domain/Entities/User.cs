@@ -5,7 +5,6 @@ public class User
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public required string Email { get; set; }
     public required string Name { get; set; }
-    public required string LastName { get; set; }
     public required string Password { get; set; }
     public string? RecoveryToken { get; set; }
     public string? Picture { get; set; }

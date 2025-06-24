@@ -31,6 +31,6 @@ public class LoginQueryHandler(
         await tokenService.StoreRefreshTokenAsync(refreshToken, user.Id);
 
         return new AuthResult(
-            user.Id, token, refreshToken, user.Email, user.Name, user.LastName, user.Picture);
+            user.Id, token, refreshToken, user.Email, user.Name, user.Picture);
     }
 }

@@ -48,19 +48,14 @@ public static class ServiceContainer
         // DbContext dependiendo del ambiente
         services.AddDbContext<FeeLinkDbContext>(opt =>
         {
+            var cs = config.GetConnectionString("FeeLinkConnection");
             if (env.IsDevelopment())
-            {
-                opt.UseSqlite(config.GetConnectionString("FeeLinkConnection")).UseAsyncSeeding(
-                        async (context, _, ct) => { await Seeder.Administration.SeedAsync(context); })
-                    .UseSeeding((context, _) => { Seeder.Administration.SeedAsync(context).Wait(); });
-            }
+                opt.UseSqlite(cs);
             else
-            {
-                opt.UseNpgsql(config.GetConnectionString("FeeLinkConnection")).UseAsyncSeeding(async (context, _, ct) =>
-                {
-                    await Seeder.Administration.SeedAsync(context);
-                }).UseSeeding((context, _) => { Seeder.Administration.SeedAsync(context).Wait(); });
-            }
+                opt.UseSqlServer(cs);
+
+            opt.UseAsyncSeeding(async (context, _, ct) => { await Seeder.Administration.SeedAsync(context); })
+                .UseSeeding((context, _) => { Seeder.Administration.SeedAsync(context).Wait(); });
         });
 
         return services;

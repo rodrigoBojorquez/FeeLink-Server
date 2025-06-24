@@ -6,5 +6,4 @@ public record AuthResult(
     string RefreshToken,
     string? Email = "",
     string? Name = "",
-    string? LastName = null,
     string? Picture = null);

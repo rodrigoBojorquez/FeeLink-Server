@@ -21,7 +21,6 @@ public class CreateUserCommandHandler(
         var user = new User
         {
             Name = command.Name,
-            LastName = command.FirstLastName,
             Email = command.Email,
             Password = command.Password,
             RoleId = command.RoleId,
