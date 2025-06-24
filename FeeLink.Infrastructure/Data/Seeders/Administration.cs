@@ -64,64 +64,56 @@ public static partial class Seeder
                 {
                     new User
                     {
-                        Name = "Rodrigo",
-                        LastName = "Bojorquez",
+                        Name = "Rodrigo Bojorquez",
                         Email = "rbojorquez1620@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
                     },
                     new User
                     {
-                        Name = "Andres ",
-                        LastName = "Garcia",
+                        Name = "Andres Garcia",
                         Email = "andres@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
                     },
                     new User
                     {
-                        Name = "Andrea",
-                        LastName = "Gomez",
+                        Name = "Andrea Gomez",
                         Email = "andrea@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
                     },
                     new User
                     {
-                        Name = "Diego",
-                        LastName = "Aleman",
+                        Name = "Diego Aleman",
                         Email = "diego@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
                     },
                     new User
                     {
-                        Name = "Fernando",
-                        LastName = "Lopez",
+                        Name = "Fernando Lopez",
                         Email = "fernando@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
                     },
                     new User
                     {
-                        Name = "Michelle",
-                        LastName = "Hernandez",
+                        Name = "Michelle Hernandez",
                         Email = "michelle@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
                     },
                     new User
                     {
-                        Name = "Ricardo",
-                        LastName = "Chi",
+                        Name = "Ricardo Chi",
                         Email = "ricardo@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["SuperAdmin"]
                     },
                     new User
                     {
-                        Name = "Joel",
-                        LastName = "Vargas",
+                        Name = "Joel Vargas",
                         Email = "joel@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["Therapist"],
@@ -129,8 +121,7 @@ public static partial class Seeder
                     },
                     new User
                     {
-                        Name = "Renata",
-                        LastName = "Mancilla",
+                        Name = "Renata Mancilla",
                         Email = "renata@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["ClinicAdmin"],
@@ -138,8 +129,7 @@ public static partial class Seeder
                     },
                     new User
                     {
-                        Name = "Giovanni",
-                        LastName = "Dzul",
+                        Name = "Giovanni Dzul",
                         Email = "tutor@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["Tutor"],
@@ -147,8 +137,7 @@ public static partial class Seeder
                     },
                     new User
                     {
-                        Name = "Eduardo",
-                        LastName = "Rodriguez",
+                        Name = "Eduardo Rodriguez",
                         Email = "eduardo@gmail.com",
                         Password = "password",
                         RoleId = rolesIds["Tutor"],

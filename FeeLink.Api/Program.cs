@@ -32,14 +32,7 @@ await app.UseTriggerSeeder();
 
 app.UseCors(config =>
 {
-    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-
-    if (allowedOrigins is null || allowedOrigins.Length == 0)
-    {
-        throw new InvalidOperationException("CORS config missing");
-    }
-
-    config.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+    config.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 });
 
 

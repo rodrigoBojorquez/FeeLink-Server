@@ -16,7 +16,6 @@ public class UpdateProfileCommandHandler(IUserRepository userRepository)
             return Errors.User.NotFound;
 
         user.Name = request.Name;
-        user.LastName = request.FirstLastName;
 
         await userRepository.UpdateAsync(user);
 

@@ -39,13 +39,11 @@ public class UsersController(
         Guid RoleId);
 
     public record UserUpdateProfileRequest(
-        Guid Id,
         string Name,
         string FirstLastName,
         string? SecondLastName);
 
     public record UserUpdateRequest(
-        Guid Id,
         string Name,
         string FirstLastName,
         string SecondLastName,
@@ -90,10 +88,10 @@ public class UsersController(
             Problem);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> UpdateUser(UserUpdateRequest request)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateUser(Guid id, UserUpdateRequest request)
     {
-        var command = new UpdateUserCommand(request.Id, request.Name, request.FirstLastName, request.SecondLastName,
+        var command = new UpdateUserCommand(id, request.Name, request.FirstLastName, request.SecondLastName,
             request.Email, request.Password, request.EntityId, request.RoleId);
         var result = await mediator.Send(command);
 
@@ -102,15 +100,15 @@ public class UsersController(
             Problem);
     }
 
-    [HttpPut("profile")]
-    public async Task<IActionResult> UpdateProfileData(UserUpdateProfileRequest request)
+    [HttpPut("{id:guid}/profile")]
+    public async Task<IActionResult> UpdateProfileData(Guid id, UserUpdateProfileRequest request)
     {
         var userId = userService.GetUserId();
 
-        if (userId != request.Id)
+        if (userId != id)
             return Problem(Errors.Authentication.NotAuthorized);
 
-        var command = new UpdateProfileCommand(request.Id, request.Name, request.FirstLastName, request.SecondLastName);
+        var command = new UpdateProfileCommand(id, request.Name, request.FirstLastName, request.SecondLastName);
 
         var result = await mediator.Send(command);
 
