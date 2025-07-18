@@ -16,9 +16,10 @@ public interface IUserRepository : IRepository<User>
     Task<Domain.Entities.User?> IncludeRoleAsync(Guid id);
 
     Task<User?> GetByRecoveryTokenAsync(string recoveryToken);
-
-    Task<ListResult<User>> ListAsync(int page = 1, int pageSize = 10, string? name = null, Guid? institutionId = null,
-        Guid? roleId = null);
     
     Task<ListResult<UserResult>> ListByToyIdAsync(Guid toyId, CancellationToken cancellationToken = default);
+    
+    Task<UserDataResult?> GetDataAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<ListResult<User>> ListAsync(int page, int pageSize, string? search = null, Guid? roleId = null);
 }

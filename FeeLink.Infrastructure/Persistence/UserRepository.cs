@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using ErrorOr;
+using FeeLink.Application.Common.Extensions;
 using FeeLink.Application.Common.Results;
 using FeeLink.Application.Interfaces.Repositories;
 using FeeLink.Application.UseCases.Users.Common;
@@ -44,13 +45,9 @@ public class UserRepository(FeeLinkDbContext context) : GenericRepository<User>(
 
     public Task<User?> GetByRecoveryTokenAsync(string recoveryToken)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<ListResult<User>> ListAsync(int page = 1, int pageSize = 10, string? name = null,
-        Guid? institutionId = null, Guid? roleId = null)
-    {
-        throw new NotImplementedException();
+        return Context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.RecoveryToken == recoveryToken);
     }
 
     public async Task<ListResult<UserResult>> ListByToyIdAsync(Guid toyId,
@@ -77,14 +74,63 @@ public class UserRepository(FeeLinkDbContext context) : GenericRepository<User>(
         );
     }
 
-    public new Task<ListResult<User>> ListAllAsync()
+    public async Task<UserDataResult?> GetDataAsync(Guid tutorId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await Context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == tutorId)
+            .Select(u => new UserDataResult(
+                // 1) Datos básicos del tutor
+                u.Id,
+                u.Company.Name,
+                u.Company.Address,
+
+                // 2) Nombre del terapeuta del primer paciente de este tutor:
+                u.TutorAssignments
+                    // de cada asignación de tutor, trae al paciente
+                    .Select(taTutor => taTutor.Patient)
+                    // de cada paciente, a sus asignaciones de terapeuta
+                    .SelectMany(p => p.TherapistAssignments)
+                    // de cada asignación de terapeuta, al user que ejerce como terapeuta
+                    .Select(taTher => taTher.User.Name)
+                    .FirstOrDefault(),
+
+                // 3) Datos del paciente
+                u.TutorAssignments
+                    .Select(ta => ta.Patient.Name)
+                    .FirstOrDefault(),
+
+                u.TutorAssignments
+                    .Select(ta => (int?)ta.Patient.Age)
+                    .FirstOrDefault(),
+
+                u.TutorAssignments
+                    .Select(ta => (Guid?)ta.Patient.Id)
+                    .FirstOrDefault()
+            ))
+            .FirstOrDefaultAsync(ct);
     }
 
-    public new Task<ListResult<User>> ListAsync(int page = 1, int pageSize = 10,
-        Expression<Func<User, bool>>? filter = null)
+    public async Task<ListResult<User>> ListAsync(int page, int pageSize, string? search = null, Guid? roleId = null)
     {
-        throw new NotImplementedException();
+        var query = Context.Users
+            .Include(u => u.Role)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = query.Where(u => u.Name.Contains(search) || u.Email.Contains(search));
+        }
+
+        if (roleId.HasValue)
+        {
+            query = query.Where(u => u.RoleId == roleId.Value);
+        }
+
+        var totalItems = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new ListResult<User>(Page: page, PageSize: pageSize, TotalItems: totalItems,
+            TotalPages: totalItems.GetTotalPages(pageSize), Items: items);
     }
 }

@@ -12,10 +12,6 @@ public class ListUsersQueryValidator : AbstractValidator<ListUsersQuery>
         RuleFor(x => x.Name)
             .MaximumLength(100).WithMessage("El texto de búsqueda no debe exceder los 100 caracteres.");
 
-        RuleFor(x => x.InstitutionId)
-            .NotEmpty().When(x => x.InstitutionId.HasValue)
-            .WithMessage("El ID de la institución debe ser un GUID válido.");
-
         RuleFor(x => x.RoleId)
             .NotEmpty().When(x => x.RoleId.HasValue)
             .WithMessage("El ID del rol debe ser un GUID válido.");

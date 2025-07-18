@@ -55,7 +55,6 @@ public static class WebSocketCommandProcessor
         var jsonSettings = new JsonSerializerSettings
         {
             Converters = { new StringEnumConverter(new CamelCaseNamingStrategy()) },
-            
         };
 
         var json = JsonConvert.SerializeObject(payload, jsonSettings);
@@ -182,6 +181,10 @@ public static class WebSocketCommandProcessor
             if (g.Y is float y) list.Add(new SensorData(y, Metric.Gyro));
             if (g.Z is float z) list.Add(new SensorData(z, Metric.Gyro));
         }
+        
+        // Agregar wifi
+        if (data.W.HasValue)
+            list.Add(new SensorData(data.W.Value ? 1 : 0, Metric.Wifi));
 
         return list;
     }
