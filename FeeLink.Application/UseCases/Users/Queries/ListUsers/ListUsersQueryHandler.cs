@@ -7,22 +7,13 @@ using MediatR;
 
 namespace FeeLink.Application.UseCases.Users.Queries.ListUsers;
 
-public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, ErrorOr<ListResult<UserResult>>>
+public class ListUsersQueryHandler(IUserRepository repository)
+    : IRequestHandler<ListUsersQuery, ErrorOr<ListResult<UserResult>>>
 {
-    private readonly IUserRepository _repository;
-    private readonly IAuthService _userService;
-
-    public ListUsersQueryHandler(IUserRepository repository, IAuthService userService)
-    {
-        _repository = repository;
-        _userService = userService;
-    }
 
     public async Task<ErrorOr<ListResult<UserResult>>> Handle(ListUsersQuery query, CancellationToken cancellationToken)
     {
-        var data = await _repository.ListWithRoleAsync(query.Page, query.PageSize,
-            u => query.Name != null && u.Name.ToLower().Contains(query.Name.ToLower()));
-
-        return ListResult<UserResult>.From(data, data.Items.Select(i => i.ToResult()));
+        var data = await repository.ListAsync(query.Page, query.PageSize, query.Name, query.RoleId);
+        return ListResult<UserResult>.From(data, data.Items.Select(u => u.ToResult()));
     }
 }

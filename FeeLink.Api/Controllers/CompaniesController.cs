@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using FeeLink.Api.Common.CommonDtos;
 using FeeLink.Api.Common.Controllers;
 using FeeLink.Application.UseCases.Companies.Commands.Create;
 using FeeLink.Application.UseCases.Companies.Commands.Delete;
@@ -14,8 +13,6 @@ namespace FeeLink.Api.Controllers;
 public class CompaniesController(IMediator mediator)
     : ApiController
 {
-    public TypeOfRegimen RegimenType = new TypeOfRegimen();
-
     public record CreateCompany(
         string Name,
         string Address,

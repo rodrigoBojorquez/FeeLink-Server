@@ -4,16 +4,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace FeeLink.Infrastructure.Services.Discord;
 
-public class WebhookLogger
+public class WebhookLogger(HttpClient httpClient, IConfiguration configuration)
 {
-    private readonly HttpClient _httpClient;
-    private readonly string _webhookUrl;
-
-    public WebhookLogger(HttpClient httpClient, IConfiguration configuration)
-    {
-        _httpClient = httpClient;
-        _webhookUrl = configuration["Discord:WebhookUrl"]!;
-    }
+    private readonly string _webhookUrl = configuration["Discord:WebhookUrl"]!;
 
     public async Task SendLogAsync(string message, string? title = null, string? color = null, CancellationToken token = default)
     {
@@ -41,7 +34,7 @@ public class WebhookLogger
         var json = JsonSerializer.Serialize(payload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync(_webhookUrl, content, token);
+        var response = await httpClient.PostAsync(_webhookUrl, content, token);
 
         response.EnsureSuccessStatusCode();
     }

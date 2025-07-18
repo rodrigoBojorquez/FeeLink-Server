@@ -9,6 +9,7 @@ using FeeLink.Infrastructure.Persistence;
 using FeeLink.Infrastructure.Services.Assets;
 using FeeLink.Infrastructure.Services.Authentication;
 using FeeLink.Infrastructure.Services.Discord;
+using FeeLink.Infrastructure.Services.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,41 +30,32 @@ public static class ServiceContainer
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
-
         services.AddScoped<ICompanyRepository, CompanyRepository>();
-        
+        services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IToyRepository, ToyRepository>();
+        services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
+
         // Servicios
         services.AddScoped<IPasswordService, PasswordService>();
         // services.AddScoped<IGovernmentApiService, GovernmentApiService>();
         services.AddScoped<ImageService>();
         services.AddScoped<ITokenService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
-        //Blob service
-        
+
+        // Singletons
+        services.AddSingleton<WebSocketConnectionManager>();
+
         // DbContext dependiendo del ambiente
         services.AddDbContext<FeeLinkDbContext>(opt =>
         {
+            var cs = config.GetConnectionString("FeeLinkConnection");
             if (env.IsDevelopment())
-            {
-                opt.UseSqlite(config.GetConnectionString("FeeLinkConnection")).UseAsyncSeeding(
-                    async (context, _, ct) =>
-                    {
-                        await Seeder.Administration.SeedAsync(context);
-                    }).UseSeeding((context, _) =>
-                {
-                    Seeder.Administration.SeedAsync(context).Wait();
-                });
-            }
+                opt.UseSqlite(cs);
             else
-            {
-                opt.UseNpgsql(config.GetConnectionString("FeeLinkConnection")).UseAsyncSeeding(async (context, _, ct) =>
-                {
-                    await Seeder.Administration.SeedAsync(context);
-                }).UseSeeding((context, _) =>
-                {
-                    Seeder.Administration.SeedAsync(context).Wait();
-                });
-            }
+                opt.UseSqlServer(cs);
+
+            opt.UseAsyncSeeding(async (context, _, ct) => { await Seeder.Administration.SeedAsync(context); })
+                .UseSeeding((context, _) => { Seeder.Administration.SeedAsync(context).Wait(); });
         });
 
         return services;

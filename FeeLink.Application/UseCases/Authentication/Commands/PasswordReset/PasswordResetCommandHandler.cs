@@ -34,8 +34,6 @@ public class PasswordResetCommandHandler(
         var refreshToken = tokenService.GenerateRefreshToken();
         await tokenService.StoreRefreshTokenAsync(refreshToken, user.Id);
 
-        return new AuthResult(user.Id, token, refreshToken, user.Email,
-            !string.IsNullOrEmpty(user.GoogleId), user.Name,
-            user.LastName);
+        return new AuthResult(user.Id, token, refreshToken, user.Email);
     }
 }

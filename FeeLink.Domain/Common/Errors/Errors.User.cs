@@ -19,5 +19,13 @@ public static partial class Errors
         public static Error ExternalAuthenticationConflict =>
             Error.Conflict(code: "User.ExternalAuthenticationConflict",
                 description: "El usuario se registrado con otro método de autenticación");
+        
+        public static Error NotConnected =>
+            Error.Failure(code: "User.NotConnected",
+                description: "El usuario no está conectado a la aplicación");
+        
+        public static Error InvalidId =>
+            Error.Validation(code: "User.InvalidId",
+                description: "El ID del usuario no es válido");
     }
 }

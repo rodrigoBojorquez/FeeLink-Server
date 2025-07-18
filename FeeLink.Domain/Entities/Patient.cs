@@ -9,5 +9,9 @@ public class Patient
     public string Gender { get; set; } = string.Empty;
     public float Height { get; set; }
     public float Weight { get; set; }
-    public Guid UserId { get; set; }
+    
+    public Toy Toy { get; set; } = null!;
+
+    public List<TherapistAssignment> TherapistAssignments { get; set; } = [];
+    public List<TutorAssignment> TutorAssignments { get; set; } = [];
 }

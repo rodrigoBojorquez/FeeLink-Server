@@ -8,9 +8,9 @@ public static class UserExtensions
     {
         return new UserResult(user.Id,
             user.Name,
-            user.LastName,
             user.Picture,
             user.Email,
-            user.Role?.Name ?? string.Empty);
+            user.Role?.Name ?? string.Empty,
+            user.Role?.DisplayName ?? string.Empty);
     }
 }

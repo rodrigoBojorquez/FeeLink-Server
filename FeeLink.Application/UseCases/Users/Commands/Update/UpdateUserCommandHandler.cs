@@ -24,11 +24,9 @@ public class UpdateUserCommandHandler(
             return Errors.User.NotFound;
 
         user.Name = command.Name;
-        user.LastName = command.FirstLastName;
         user.Email = command.Email;
         user.Password = passwordService.HashPassword(command.Password);
         user.RoleId = command.RoleId;
-        user.UpdateDate = DateTime.UtcNow;
 
         await repository.UpdateAsync(user);
 

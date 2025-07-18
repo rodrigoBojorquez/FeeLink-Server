@@ -13,14 +13,4 @@ public class RoleRepository(FeeLinkDbContext context) : GenericRepository<Role>(
     {
         return await Context.Roles.FirstOrDefaultAsync(r => r.Name == name);
     }
-
-    public new Task<ListResult<Role>> ListAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public new Task<ListResult<Role>> ListAsync(int page = 1, int pageSize = 10, Expression<Func<Role, bool>>? filter = null)
-    {
-        throw new NotImplementedException();
-    }
 }

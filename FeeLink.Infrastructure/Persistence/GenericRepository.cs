@@ -7,17 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FeeLink.Infrastructure.Persistence;
 
-public class GenericRepository<T> : IRepository<T> where T : class
+public class GenericRepository<T>(FeeLinkDbContext context) : IRepository<T>
+    where T : class
 {
-    protected readonly FeeLinkDbContext Context;
-    private readonly DbSet<T> _set;
+    protected readonly FeeLinkDbContext Context = context;
+    private readonly DbSet<T> _set = context.Set<T>();
 
-
-    public GenericRepository(FeeLinkDbContext context)
-    {
-        Context = context;
-        _set = context.Set<T>();
-    }
 
     public async Task<T?> GetByIdAsync(Guid id)
     {

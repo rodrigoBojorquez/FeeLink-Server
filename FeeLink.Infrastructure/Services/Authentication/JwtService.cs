@@ -36,7 +36,7 @@ public class JwtService : ITokenService
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email),
             new(FeeLinkConstants.RoleClaim, user.Role.Name),
-            new("userName", $"{user.Name} {user.LastName}"),
+            new("userName", user.Name),
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -66,7 +66,7 @@ public class JwtService : ITokenService
         var existToken = await _context.RefreshTokens.Include(r => r.User)
             .FirstOrDefaultAsync(r => r.Token == refreshToken);
 
-        return existToken is not null && existToken.Expires > DateTime.UtcNow;
+         return existToken is not null && existToken.Expires > DateTime.UtcNow;
     }
 
     public async Task StoreRefreshTokenAsync(string refreshToken, Guid userId)
@@ -118,8 +118,7 @@ public class JwtService : ITokenService
         var token = await GenerateTokenAsync(existToken.User);
         var user = existToken.User;
 
-        return new AuthResult(Id: user.Id, AccessToken: token, RefreshToken: existToken.Token, Email: user.Email,
-            GoogleAuth: !string.IsNullOrEmpty(user.GoogleId), Name: user.Name, LastName: user.LastName,
+        return new AuthResult(Id: user.Id, AccessToken: token, RefreshToken: existToken.Token, Email: user.Email, Name: user.Name,
             Picture: user.Picture);
     }
 

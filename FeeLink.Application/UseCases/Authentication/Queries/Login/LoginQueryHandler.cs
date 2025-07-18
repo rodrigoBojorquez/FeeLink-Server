@@ -7,38 +7,30 @@ using MediatR;
 
 namespace FeeLink.Application.UseCases.Authentication.Queries.Login;
 
-public class LoginQueryHandler : IRequestHandler<LoginQuery, ErrorOr<AuthResult>>
+public class LoginQueryHandler(
+    IUserRepository userRepository,
+    ITokenService tokenService,
+    IPasswordService passwordService)
+    : IRequestHandler<LoginQuery, ErrorOr<AuthResult>>
 {
-    private readonly ITokenService _tokenService;
-    private readonly IUserRepository _userRepository;
-    private readonly IPasswordService _passwordService;
-
-    public LoginQueryHandler(IUserRepository userRepository, ITokenService tokenService,
-        IPasswordService passwordService)
+    public async Task<ErrorOr<AuthResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
-        _userRepository = userRepository;
-        _tokenService = tokenService;
-        _passwordService = passwordService;
-    }
-
-    public async Task<ErrorOr<AuthResult>> Handle(LoginQuery query, CancellationToken cancellationToken)
-    {
-        var user = await _userRepository.GetByEmailAsync(query.Email);
+        var user = await userRepository.GetByEmailAsync(request.Email);
 
         if (user is null)
             return Errors.Authentication.InvalidCredentials;
 
-        if (user.GoogleId is not null)
+        bool passwordIsValid = passwordService.VerifyPassword(request.Password, user.Password);
+
+        if (!passwordIsValid)
             return Errors.Authentication.InvalidCredentials;
 
-        if (!_passwordService.VerifyPassword(query.Password, user.Password!))
-            return Errors.Authentication.InvalidCredentials;
+        var token = await tokenService.GenerateTokenAsync(user);
+        var refreshToken = tokenService.GenerateRefreshToken();
 
-        var token = await _tokenService.GenerateTokenAsync(user);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        await _tokenService.StoreRefreshTokenAsync(refreshToken, user.Id);
+        await tokenService.StoreRefreshTokenAsync(refreshToken, user.Id);
 
-        return new AuthResult(user.Id, token, refreshToken, user.Email, false,
-            user.Name, user.LastName);
+        return new AuthResult(
+            user.Id, token, refreshToken, user.Email, user.Name, user.Picture);
     }
 }

@@ -1,6 +1,7 @@
-using FeeLink.Infrastructure.Common.DependencyInjection;
+﻿using FeeLink.Infrastructure.Common.DependencyInjection;
 using FeeLink.Api.Common.DependencyInjection;
 using FeeLink.Api.Common.HttpConfigurations;
+using FeeLink.Api.WebSockets;
 using FeeLink.Application.DependencyInjection;
 using Serilog;
 
@@ -31,14 +32,7 @@ await app.UseTriggerSeeder();
 
 app.UseCors(config =>
 {
-    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-
-    if (allowedOrigins is null || allowedOrigins.Length == 0)
-    {
-        throw new InvalidOperationException("CORS config missing");
-    }
-
-    config.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+    config.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 });
 
 
@@ -49,5 +43,8 @@ app.UseHttpsRedirection();
 app.UseGlobalErrorHandling();
 app.UseAuthorization();
 app.MapControllers();
+app.UseWebSockets();
+
+app.MapSensorDataWS();
 
 app.Run();

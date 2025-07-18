@@ -7,6 +7,8 @@ using FeeLink.Application.UseCases.Users.Commands.Delete;
 using FeeLink.Application.UseCases.Users.Commands.Update;
 using FeeLink.Application.UseCases.Users.Commands.UpdateProfile;
 using FeeLink.Application.UseCases.Users.Common;
+using FeeLink.Application.UseCases.Users.Queries.GetData;
+using FeeLink.Application.UseCases.Users.Queries.ListLinkedWithToy;
 using FeeLink.Application.UseCases.Users.Queries.ListUsers;
 using FeeLink.Domain.Common.Errors;
 using MediatR;
@@ -25,7 +27,6 @@ public class UsersController(
         int? Page = 1,
         int? PageSize = 10,
         string? Search = null,
-        Guid? InstitutionId = null,
         Guid? RoleId = null);
 
     public record UserCreateRequest(
@@ -38,13 +39,11 @@ public class UsersController(
         Guid RoleId);
 
     public record UserUpdateProfileRequest(
-        Guid Id,
         string Name,
         string FirstLastName,
         string? SecondLastName);
 
     public record UserUpdateRequest(
-        Guid Id,
         string Name,
         string FirstLastName,
         string SecondLastName,
@@ -56,7 +55,7 @@ public class UsersController(
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] ListUsersRequest request)
     {
-        var query = new ListUsersQuery(request.Page ?? 1, request.PageSize ?? 10, request.Search, request.InstitutionId,
+        var query = new ListUsersQuery(request.Page ?? 1, request.PageSize ?? 10, request.Search,
             request.RoleId);
         var result = await mediator.Send(query);
 
@@ -89,10 +88,10 @@ public class UsersController(
             Problem);
     }
 
-    [HttpPut]
-    public async Task<IActionResult> UpdateUser(UserUpdateRequest request)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateUser(Guid id, UserUpdateRequest request)
     {
-        var command = new UpdateUserCommand(request.Id, request.Name, request.FirstLastName, request.SecondLastName,
+        var command = new UpdateUserCommand(id, request.Name, request.FirstLastName, request.SecondLastName,
             request.Email, request.Password, request.EntityId, request.RoleId);
         var result = await mediator.Send(command);
 
@@ -101,15 +100,15 @@ public class UsersController(
             Problem);
     }
 
-    [HttpPut("profile")]
-    public async Task<IActionResult> UpdateProfileData(UserUpdateProfileRequest request)
+    [HttpPut("{id:guid}/profile")]
+    public async Task<IActionResult> UpdateProfileData(Guid id, UserUpdateProfileRequest request)
     {
         var userId = userService.GetUserId();
 
-        if (userId != request.Id)
+        if (userId != id)
             return Problem(Errors.Authentication.NotAuthorized);
 
-        var command = new UpdateProfileCommand(request.Id, request.Name, request.FirstLastName, request.SecondLastName);
+        var command = new UpdateProfileCommand(id, request.Name, request.FirstLastName, request.SecondLastName);
 
         var result = await mediator.Send(command);
 
@@ -129,7 +128,7 @@ public class UsersController(
         if (user.Id != userService.GetUserId())
             return Problem(Errors.Authentication.NotAuthorized);
 
-        if (!string.IsNullOrEmpty(user.Picture) && user.GoogleId is null)
+        if (!string.IsNullOrEmpty(user.Picture))
         {
             imageService.Delete(user.Picture);
         }
@@ -150,8 +149,7 @@ public class UsersController(
 
         return Ok(filePath);
     }
-
-
+    
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
@@ -161,5 +159,22 @@ public class UsersController(
         return result.Match(
             _ => Ok(),
             Problem);
+    }
+
+    [HttpGet("linked/{toyId:guid}")]
+    public async Task<IActionResult> GetLinkedUsers(Guid toyId)
+    {
+        var query = new ListLinkedUsersWithToyQuery(toyId);
+        var result = await mediator.Send(query);
+
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("{tutorId:guid}/data")]
+    public async Task<IActionResult> GetUserData(Guid tutorId)
+    {
+        var query = new GetUserDataQuery(tutorId);
+        var result = await mediator.Send(query);
+        return result.Match(Ok, Problem);
     }
 }
