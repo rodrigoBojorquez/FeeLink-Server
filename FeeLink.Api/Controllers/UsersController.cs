@@ -7,6 +7,7 @@ using FeeLink.Application.UseCases.Users.Commands.Delete;
 using FeeLink.Application.UseCases.Users.Commands.Update;
 using FeeLink.Application.UseCases.Users.Commands.UpdateProfile;
 using FeeLink.Application.UseCases.Users.Common;
+using FeeLink.Application.UseCases.Users.Queries.GetData;
 using FeeLink.Application.UseCases.Users.Queries.ListLinkedWithToy;
 using FeeLink.Application.UseCases.Users.Queries.ListUsers;
 using FeeLink.Domain.Common.Errors;
@@ -26,7 +27,6 @@ public class UsersController(
         int? Page = 1,
         int? PageSize = 10,
         string? Search = null,
-        Guid? InstitutionId = null,
         Guid? RoleId = null);
 
     public record UserCreateRequest(
@@ -55,7 +55,7 @@ public class UsersController(
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] ListUsersRequest request)
     {
-        var query = new ListUsersQuery(request.Page ?? 1, request.PageSize ?? 10, request.Search, request.InstitutionId,
+        var query = new ListUsersQuery(request.Page ?? 1, request.PageSize ?? 10, request.Search,
             request.RoleId);
         var result = await mediator.Send(query);
 
@@ -149,8 +149,7 @@ public class UsersController(
 
         return Ok(filePath);
     }
-
-
+    
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
@@ -168,6 +167,14 @@ public class UsersController(
         var query = new ListLinkedUsersWithToyQuery(toyId);
         var result = await mediator.Send(query);
 
+        return result.Match(Ok, Problem);
+    }
+
+    [HttpGet("{tutorId:guid}/data")]
+    public async Task<IActionResult> GetUserData(Guid tutorId)
+    {
+        var query = new GetUserDataQuery(tutorId);
+        var result = await mediator.Send(query);
         return result.Match(Ok, Problem);
     }
 }

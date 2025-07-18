@@ -14,7 +14,7 @@ public class SaveWearableData
     [JsonPropertyName("m")] public AxisData? M { get; set; }
 
     [JsonPropertyName("g")] public AxisData? G { get; set; }
-
+    [JsonPropertyName("w")] public bool ? W { get; set; }   
 }
 
 public class Pressure

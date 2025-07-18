@@ -10,6 +10,7 @@ public static class UserExtensions
             user.Name,
             user.Picture,
             user.Email,
-            user.Role?.Name ?? string.Empty);
+            user.Role?.Name ?? string.Empty,
+            user.Role?.DisplayName ?? string.Empty);
     }
 }

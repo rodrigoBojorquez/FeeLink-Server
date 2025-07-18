@@ -5,4 +5,5 @@ public record UserResult(
     string Name,
     string? Picture,
     string Email,
-    string RoleName);
+    string RoleName,
+    string RoleDisplayName);

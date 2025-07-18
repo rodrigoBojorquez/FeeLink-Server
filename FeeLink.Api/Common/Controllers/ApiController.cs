@@ -7,7 +7,7 @@ namespace FeeLink.Api.Common.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+[AllowAnonymous]
 public class ApiController: ControllerBase
 {
     protected IActionResult Problem(List<Error> errors)
