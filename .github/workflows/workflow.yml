@@ -1,0 +1,62 @@
+name: CI/CD .NET 9 → IIS
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./FeeLink.Api
+
+      - name: Generar targets para .publishsettings
+        run: |
+          cat > FeeLink.Api/FeeLink.Api.wpp.targets << 'EOF'
+          <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+            <!-- Importa el pipeline de publicación web de VS -->
+            <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Web\Microsoft.Web.Publishing.targets" />
+            <Target Name="GetPublishPropertiesFromPublishSettings" BeforeTargets="PipelineDependsOn">
+              <!-- Ruta al archivo .publishsettings -->
+              <PropertyGroup>
+                <PublishSettingsFile>$(MSBuildProjectDirectory)\feelink-api.runasp.net-WebDeploy.publishSettings</PublishSettingsFile>
+              </PropertyGroup>
+              <!-- Extrae los atributos del profile MSDeploy -->
+              <XmlPeek XmlInputPath="$(PublishSettingsFile)"
+                       Query="/publishData/publishProfile[@publishMethod='MSDeploy'][1]/@publishUrl">
+                <Output TaskParameter="Result" PropertyName="MSDeployServiceURL" />
+              </XmlPeek>
+              <XmlPeek XmlInputPath="$(PublishSettingsFile)"
+                       Query="/publishData/publishProfile[@publishMethod='MSDeploy'][1]/@msdeploySite">
+                <Output TaskParameter="Result" PropertyName="DeployIisAppPath" />
+              </XmlPeek>
+              <XmlPeek XmlInputPath="$(PublishSettingsFile)"
+                       Query="/publishData/publishProfile[@publishMethod='MSDeploy'][1]/@userName">
+                <Output TaskParameter="Result" PropertyName="UserName" />
+              </XmlPeek>
+              <XmlPeek XmlInputPath="$(PublishSettingsFile)"
+                       Query="/publishData/publishProfile[@publishMethod='MSDeploy'][1]/@userPWD">
+                <Output TaskParameter="Result" PropertyName="Password" />
+              </XmlPeek>
+            </Target>
+          </Project>
+          EOF
+      - name: Publicar y desplegar con .publishsettings
+        run: |
+          dotnet msbuild FeeLink.Api/FeeLink.Api.csproj \
+            /p:VisualStudioVersion=17.0 \
+            /p:DeployOnBuild=true \
+            /p:PublishSettingsFile=FeeLink.Api/feelink-api.runasp.net-WebDeploy.publishSettings
