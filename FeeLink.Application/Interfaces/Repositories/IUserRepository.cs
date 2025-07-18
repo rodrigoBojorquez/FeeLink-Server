@@ -22,4 +22,5 @@ public interface IUserRepository : IRepository<User>
     Task<UserDataResult?> GetDataAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<ListResult<User>> ListAsync(int page, int pageSize, string? search = null, Guid? roleId = null);
+    
 }

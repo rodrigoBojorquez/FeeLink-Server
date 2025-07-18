@@ -177,4 +177,18 @@ public class UsersController(
         var result = await mediator.Send(query);
         return result.Match(Ok, Problem);
     }
+    
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        var userId = userService.GetUserId();
+        if (userId == Guid.Empty)
+            return Problem(Errors.Authentication.NotAuthorized);
+
+        var user = await repository.IncludeRoleAsync(userId.Value);
+        if (user is null)
+            return Problem(Errors.User.NotFound);
+
+        return Ok(user.ToResult());
+    }
 }
