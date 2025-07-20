@@ -9,7 +9,7 @@ public class GetPatientActivitySummaryQueryHandler(ISensorReadingRepository sens
     public async Task<PatientActivitySummaryResult> Handle(GetPatientActivitySummaryQuery request, CancellationToken cancellationToken)
     {
         // Use the repository to get the patient activity count
-        var result = await sensorReadingRepository.GetPatientActivityCountAsync(request.TherapistId, request.Date);
+        var result = await sensorReadingRepository.GetPatientActivityCountAsync(request.Date);
 
         // Return the result
         return result;

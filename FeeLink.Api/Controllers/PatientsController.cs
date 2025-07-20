@@ -7,6 +7,7 @@ using FeeLink.Application.UseCases.Patients.Commands.AssignTutor;
 using FeeLink.Application.UseCases.Patients.Commands.Create;
 using FeeLink.Application.UseCases.Patients.Commands.Update;
 using FeeLink.Application.UseCases.Patients.Common;
+using FeeLink.Application.UseCases.Patients.Queries.ListAvailable;
 using FeeLink.Application.UseCases.Patients.Queries.Summary;
 using FeeLink.Application.UseCases.Readings.Queries.ActivitySummary;
 using FeeLink.Application.UseCases.Readings.Queries.MonthlyPatientActivity;
@@ -56,14 +57,18 @@ public class PatientsController(
 
     public record AssignTutorsRequest(
         List<Guid> TutorIds);
-    
+
     public record GetPatientActivitySummaryRequest(
         DateOnly Date,
         bool? Dummy = false);
-    
+
     public record ListMonthlyPatientActivityRequest(
         int Month,
         bool? Dummy = false);
+    
+    public record ListAvailablePatientsRequest(
+        int? Page,
+        int? PageSize);
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePatientRequest req)
@@ -84,14 +89,14 @@ public class PatientsController(
 
         return patient is null ? Problem(Errors.Patient.NotFound) : Ok(patient.ToResult());
     }
-    
+
     [HttpGet("{id:guid}/toy")]
     public async Task<IActionResult> GetPatientByToyId(Guid id)
     {
         var toy = await toyRepository.GetByPatientIdAsync(id);
         return toy is null ? Problem(Errors.Patient.NotFound) : Ok(toy.ToResult());
     }
-    
+
     [HttpGet("{id:guid}/summary")]
     public async Task<IActionResult> GetPatientSummary(Guid id, [FromQuery] DateOnly? date)
     {
@@ -165,17 +170,15 @@ public class PatientsController(
             var dummyResult = await sensorReadingRepository.GetPatientActivityCountAsyncDummy(request.Date);
             return Ok(dummyResult);
         }
-
-        var therapistId = authService.GetUserId();
-        if (therapistId.IsError)
-            return Problem(therapistId.Errors);
-        var query = new GetPatientActivitySummaryQuery(therapistId.Value, request.Date);
+        
+        var query = new GetPatientActivitySummaryQuery(request.Date);
         var result = await mediator.Send(query);
         return Ok(result);
     }
 
     [HttpGet("activity/summary")]
-    public async Task<IActionResult> GetMonthlyPatientActivitySummary([FromQuery] ListMonthlyPatientActivityRequest request)
+    public async Task<IActionResult> GetMonthlyPatientActivitySummary(
+        [FromQuery] ListMonthlyPatientActivityRequest request)
     {
         if (request.Dummy is true)
         {
@@ -183,7 +186,7 @@ public class PatientsController(
                 authService.GetUserId().Value, request.Month);
             return Ok(dummyResult);
         }
-        
+
         var therapistId = authService.GetUserId();
         if (therapistId.IsError)
             return Problem(therapistId.Errors);
@@ -191,4 +194,17 @@ public class PatientsController(
         var result = await mediator.Send(query);
         return Ok(result);
     }
+
+    [HttpGet("available")]
+    public async Task<IActionResult> ListAvailable([FromQuery] ListPatientsRequest req)
+    {
+        var query = new ListAvailablePatientsQuery(
+            Page: req.Page,
+            PageSize: req.PageSize);
+        var result = await mediator.Send(query);
+        return result.Match(
+            Ok,
+            Problem);
+    }
+
 }

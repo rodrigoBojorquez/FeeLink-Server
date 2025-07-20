@@ -11,6 +11,6 @@ public static class ReadingExtensions
             reading.ToyId,
             reading.CreateDate,
             reading.Value,
-            reading.Metric);
+            reading.Metric.ToString());
     }
 }

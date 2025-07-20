@@ -2,7 +2,7 @@ using FeeLink.Domain.Entities;
 
 namespace FeeLink.Application.UseCases.Readings.Common;
 
-public record ReadingResult(Guid Id, Guid ToyId, DateTime CreateDate, float Value, Metric Metric);
+public record ReadingResult(Guid Id, Guid ToyId, DateTime CreateDate, float Value, string Metric);
 
 public record DailyStatusItem(DateOnly Date, string Status);
 
