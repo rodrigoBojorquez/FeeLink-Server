@@ -26,14 +26,14 @@ public class CreatePatientCommandHandler(IPatientRepository patientRepository, I
 
         List<Error> errors = [];
 
-        if (request.TherapistIds is not null)
+        if (request.TherapistIds is not null && request.TherapistIds.Count > 0)
         {
             var result = await mediator.Send(new AssignTherapistCommand(patient.Id, request.TherapistIds), cancellationToken);
             if (result.IsError)
                 errors.AddRange(result.Errors);
         }
 
-        if (request.TutorsIds is not null)
+        if (request.TutorsIds is not null && request.TutorsIds.Count > 0)
         {
             var result = await mediator.Send(new AssignTutorCommand(patient.Id, request.TutorsIds), cancellationToken);
             if (result.IsError)

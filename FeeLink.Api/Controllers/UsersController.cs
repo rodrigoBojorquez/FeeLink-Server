@@ -2,6 +2,7 @@ using FeeLink.Infrastructure.Services.Assets;
 using FeeLink.Api.Common.Controllers;
 using FeeLink.Application.Interfaces.Authentication;
 using FeeLink.Application.Interfaces.Repositories;
+using FeeLink.Application.UseCases.Patients.Queries.ListByUser;
 using FeeLink.Application.UseCases.Users.Commands.Create;
 using FeeLink.Application.UseCases.Users.Commands.Delete;
 using FeeLink.Application.UseCases.Users.Commands.Update;
@@ -51,6 +52,10 @@ public class UsersController(
         string Password,
         Guid? EntityId,
         Guid RoleId);
+    
+    public record ListPatientsByUserRequest(
+        int? Page,
+        int? PageSize);
 
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] ListUsersRequest request)
@@ -191,4 +196,14 @@ public class UsersController(
 
         return Ok(user.ToResult());
     }
+    
+    [HttpGet("{id:guid}/patients")]
+    public async Task<IActionResult> GetPatientsByTutor(Guid id, [FromQuery] ListPatientsByUserRequest request)
+    {
+        var query = new ListPatientsByUserQuery(request.Page ?? 1, request.PageSize ?? 10, id);
+        var result = await mediator.Send(query);
+        return result.Match(Ok, Problem);
+    }
+    
+     
 }

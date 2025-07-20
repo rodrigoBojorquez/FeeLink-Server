@@ -1,4 +1,5 @@
 using FeeLink.Application.Common.Results;
+using FeeLink.Application.UseCases.Patients.Common;
 using FeeLink.Application.UseCases.Readings.Common;
 using FeeLink.Domain.Entities;
 
@@ -7,7 +8,7 @@ namespace FeeLink.Application.Interfaces.Repositories;
 public interface ISensorReadingRepository : IRepository<SensorReading>
 {
     Task<ListResult<ReadingResult>> ListAsync(
-        string macAddress,
+        string? macAddress = null,
         DateTime? from = null,
         DateTime? to = null,
         Metric? metric = null,
@@ -24,4 +25,6 @@ public interface ISensorReadingRepository : IRepository<SensorReading>
     Task<PatientActivitySummaryResult> GetPatientActivityCountAsyncDummy(DateOnly date);
     Task<ListResult<MonthlyPatientActivityResult>> GetTherapistPatientActivitySummaryAsync(Guid therapistId, int month);
     Task<ListResult<MonthlyPatientActivityResult>> GetTherapistPatientActivitySummaryAsyncDummy(Guid therapistId, int month);
+    
+    Task<PatientSummaryResult?> GetPatientSummaryAsync(Guid patientId, DateOnly date, CancellationToken cancellationToken = default); 
 }

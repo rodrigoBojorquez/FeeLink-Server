@@ -1,3 +1,4 @@
+using FeeLink.Application.Common.Extensions;
 using FeeLink.Application.Common.Results;
 using FeeLink.Application.UseCases.Toys.Common;
 using FeeLink.Application.Interfaces.Repositories;
@@ -25,10 +26,41 @@ public class ToyRepository(FeeLinkDbContext context) : GenericRepository<Toy>(co
         );
     }
 
+
     public async Task<Toy?> GetByMacAsync(string macAddress, CancellationToken cancellationToken = default)
     {
         return await Context.Toys
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.MacAddress == macAddress, cancellationToken);
+    }
+
+    public async Task<ListResult<Toy>> ListAsync(int page, int pageSize, Guid? userId = null,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Toy> query = Context.Toys;
+
+        if (userId.HasValue)
+        {
+            query = query.Where(toy =>
+                Context.TherapistAssignments.Any(ta => ta.UserId == userId && ta.PatientId == toy.PatientId) ||
+                Context.TutorAssignments.Any(tu => tu.UserId == userId && tu.PatientId == toy.PatientId)
+            );
+        }
+
+        var totalItems = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new ListResult<Toy>(Items: items, Page: page, PageSize: pageSize, TotalItems: totalItems,
+            TotalPages: totalItems.GetTotalPages(pageSize));
+    }
+
+    public async Task<Toy?> GetByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default)
+    {
+        return await Context.Toys
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.PatientId == patientId, cancellationToken);
     }
 }

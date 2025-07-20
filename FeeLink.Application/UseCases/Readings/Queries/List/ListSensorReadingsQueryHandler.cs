@@ -11,10 +11,6 @@ public class ListSensorReadingsQueryHandler(ISensorReadingRepository sensorReadi
 {
     public async Task<ErrorOr<ListResult<ReadingResult>>> Handle(ListSensorReadingsQuery request, CancellationToken cancellationToken)
     {
-        var toy = await toyRepository.GetByMacAsync(request.MacAddress, cancellationToken);
-        if (toy is null)
-            return Errors.Toy.NotFound;
-        
         var result = await sensorReadingRepository.ListAsync(
             macAddress: request.MacAddress,
             from: request.From,

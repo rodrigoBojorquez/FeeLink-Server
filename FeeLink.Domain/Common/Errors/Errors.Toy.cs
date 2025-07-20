@@ -35,5 +35,10 @@ public static partial class Errors
             code: "Toy.NotLinked",
             description: "El juguete no está vinculado al usuario"
         );
+
+        public static Error PatientAlreadyHasOne => Error.Conflict(
+            code: "Toy.PatientAlreadyHasOne",
+            description: "El paciente ya tiene un juguete asignado"
+        );
     }
 }
