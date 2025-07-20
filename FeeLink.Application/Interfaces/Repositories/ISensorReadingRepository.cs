@@ -21,7 +21,7 @@ public interface ISensorReadingRepository : IRepository<SensorReading>
     Task<StatusReportResult> GetDailyStatusReportAsync(string macAddress, DateOnly from, DateOnly to);
     Task<StatusReportResult> GetDailyStatusReportAsyncDummy(string macAddress, DateOnly from, DateOnly to);
     
-    Task<PatientActivitySummaryResult> GetPatientActivityCountAsync(Guid therapistId, DateOnly date);
+    Task<PatientActivitySummaryResult> GetPatientActivityCountAsync(DateOnly date);
     Task<PatientActivitySummaryResult> GetPatientActivityCountAsyncDummy(DateOnly date);
     Task<ListResult<MonthlyPatientActivityResult>> GetTherapistPatientActivitySummaryAsync(Guid therapistId, int month);
     Task<ListResult<MonthlyPatientActivityResult>> GetTherapistPatientActivitySummaryAsyncDummy(Guid therapistId, int month);

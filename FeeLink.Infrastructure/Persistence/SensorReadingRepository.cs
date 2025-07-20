@@ -28,6 +28,8 @@ public class SensorReadingRepository(FeeLinkDbContext context)
     {
         var query = _context.SensorReadings.AsQueryable();
 
+        query = query.OrderByDescending(r => r.CreateDate);
+
         if (macAddress is not null)
             query = query.Where(r => r.Toy.MacAddress == macAddress);
 
@@ -57,7 +59,7 @@ public class SensorReadingRepository(FeeLinkDbContext context)
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(r => new ReadingResult(r.Id, r.ToyId, r.CreateDate, r.Value, r.Metric))
+            .Select(r => new ReadingResult(r.Id, r.ToyId, r.CreateDate, r.Value, r.Metric.ToString()))
             .ToListAsync();
 
         return new ListResult<ReadingResult>(
@@ -168,39 +170,35 @@ public class SensorReadingRepository(FeeLinkDbContext context)
         return Task.FromResult(result);
     }
 
-    public async Task<PatientActivitySummaryResult> GetPatientActivityCountAsync(Guid therapistId, DateOnly date)
+    public async Task<PatientActivitySummaryResult> GetPatientActivityCountAsync(DateOnly date)
     {
-        var start = date.ToDateTime(TimeOnly.MinValue);
-        var end = date.ToDateTime(TimeOnly.MaxValue);
+        // 1) Definir inicio y fin del día
+        var start = date.ToDateTime(TimeOnly.MinValue);   // 00:00:00
+        var end   = date.ToDateTime(TimeOnly.MaxValue);   // 23:59:59.999...
 
-        // Total de pacientes asignados al terapeuta
-        var totalPatients = await _context.Patients.CountAsync();
-        
-        var patientsWithActivity = await _context.Patients.
-            Where(p => p.TherapistAssignments.Any(ta => ta.UserId == therapistId) &&
-                        p.Toy.SensorsReadings.Any(r =>
-                            r.Metric == Metric.PressurePercent &&
-                            r.CreateDate >= start &&
-                            r.CreateDate <= end))
+        // 2) Número total de pacientes
+        var totalPatients = await _context.Patients
             .CountAsync();
 
-        // Pacientes con al menos una lectura de PressurePercent en el rango
-        // var patientsWithActivity = await (
-        //     from ta in _context.TherapistAssignments
-        //     join toy in _context.Toys on ta.PatientId equals toy.PatientId
-        //     join r in _context.SensorReadings on toy.Id equals r.ToyId
-        //     where
-        //         r.Metric == Metric.PressurePercent &&
-        //         r.CreateDate >= start &&
-        //         r.CreateDate <= end
-        //     select ta.PatientId
-        // ).Distinct().CountAsync();
+        // 3) Número de pacientes con al menos una lectura de presión > 0.3
+        var patientsWithActivity = await _context.SensorReadings
+            .Where(r =>
+                r.Metric == Metric.PressurePercent &&
+                r.Value   > 0.3f &&
+                r.CreateDate >= start &&
+                r.CreateDate <= end)
+            // Asumimos que Toy tiene la FK PatientId o bien navegación a Patient
+            .Select(r => r.Toy.Patient.Id)   // o r.Toy.PatientId
+            .Distinct()
+            .CountAsync();
 
+        // 4) Construir el resultado
         return new PatientActivitySummaryResult(
-            PatientsWithActivity: patientsWithActivity,
-            PatientsWithoutActivity: totalPatients - patientsWithActivity
+            PatientsWithActivity:     patientsWithActivity,
+            PatientsWithoutActivity:  totalPatients - patientsWithActivity
         );
     }
+
 
     public Task<PatientActivitySummaryResult> GetPatientActivityCountAsyncDummy(DateOnly date)
     {
