@@ -62,6 +62,7 @@ public class UserRepository(FeeLinkDbContext context) : GenericRepository<User>(
             return new ListResult<UserResult>([], 0);
 
         var users = await Context.Users
+            .Include(u => u.Role)
             .Where(u =>
                 u.TherapistAssignments.Any(ta => ta.PatientId == patientId) ||
                 u.TutorAssignments.Any(tu => tu.PatientId == patientId)

@@ -51,11 +51,15 @@ public class ToysController(
         DateOnly To,
         bool? Dummy = false);
 
+    public record ListToysRequest(
+        int? Page,
+        int? PageSize,
+        Guid? UserId);
 
     [HttpGet]
-    public async Task<IActionResult> ListLinkedWithUser([FromQuery] Guid linkedToUser)
+    public async Task<IActionResult> List([FromQuery] ListToysRequest request)
     {
-        var query = new ListLinkedToysWithUserQuery(linkedToUser);
+        var query = new ListToysQuery(request.Page ?? 1, request.PageSize ?? 10, request.UserId);
         var result = await mediator.Send(query);
         return result.Match(Ok, Problem);
     }
@@ -74,7 +78,8 @@ public class ToysController(
         if (userIdOrError.IsError)
             return Problem(userIdOrError.Errors);
 
-        var linkedToysResult = await mediator.Send(new ListLinkedToysWithUserQuery(userIdOrError.Value));
+        var linkedToysResult =
+            await mediator.Send(new ListToysQuery(Page: 1, PageSize: 10, UserId: userIdOrError.Value));
 
         if (linkedToysResult.IsError)
             return Problem(linkedToysResult.Errors);
@@ -101,7 +106,8 @@ public class ToysController(
         if (userIdOrError.IsError)
             return Problem(userIdOrError.Errors);
 
-        var linkedToysResult = await mediator.Send(new ListLinkedToysWithUserQuery(userIdOrError.Value));
+        var linkedToysResult =
+            await mediator.Send(new ListToysQuery(Page: 1, PageSize: 10, UserId: userIdOrError.Value));
 
         if (linkedToysResult.IsError)
             return Problem(linkedToysResult.Errors);

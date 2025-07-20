@@ -5,7 +5,7 @@ namespace FeeLink.Application.Interfaces.Repositories;
 
 public interface IPatientRepository : IRepository<Patient>
 {
-    Task<List<Patient>> ListByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<ListResult<Patient>> ListByUserIdAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken = default);
     
     Task<Patient?> IncludeAssignmentsAsync(Guid patientId, CancellationToken cancellationToken = default);
     
@@ -15,4 +15,6 @@ public interface IPatientRepository : IRepository<Patient>
 
     Task<ListResult<Patient>> ListAsync(int page = 1, int pageSize = 10, string? search = null, 
         Guid? therapistId = null, Guid? tutorId = null, CancellationToken cancellationToken = default);
+    
+    Task<bool> HasToyAsync(Guid patientId, CancellationToken cancellationToken = default);
 }

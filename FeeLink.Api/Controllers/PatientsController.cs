@@ -7,8 +7,10 @@ using FeeLink.Application.UseCases.Patients.Commands.AssignTutor;
 using FeeLink.Application.UseCases.Patients.Commands.Create;
 using FeeLink.Application.UseCases.Patients.Commands.Update;
 using FeeLink.Application.UseCases.Patients.Common;
+using FeeLink.Application.UseCases.Patients.Queries.Summary;
 using FeeLink.Application.UseCases.Readings.Queries.ActivitySummary;
 using FeeLink.Application.UseCases.Readings.Queries.MonthlyPatientActivity;
+using FeeLink.Application.UseCases.Toys.Common;
 using FeeLink.Domain.Common.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +21,7 @@ public class PatientsController(
     IMediator mediator,
     IPatientRepository patientRepository,
     IAuthService authService,
+    IToyRepository toyRepository,
     ISensorReadingRepository sensorReadingRepository)
     : ApiController
 {
@@ -80,6 +83,23 @@ public class PatientsController(
         var patient = await patientRepository.GetByIdAsync(id);
 
         return patient is null ? Problem(Errors.Patient.NotFound) : Ok(patient.ToResult());
+    }
+    
+    [HttpGet("{id:guid}/toy")]
+    public async Task<IActionResult> GetPatientByToyId(Guid id)
+    {
+        var toy = await toyRepository.GetByPatientIdAsync(id);
+        return toy is null ? Problem(Errors.Patient.NotFound) : Ok(toy.ToResult());
+    }
+    
+    [HttpGet("{id:guid}/summary")]
+    public async Task<IActionResult> GetPatientSummary(Guid id, [FromQuery] DateOnly? date)
+    {
+        var query = new GetPatientSummaryQuery(id, date ?? DateOnly.FromDateTime(DateTime.UtcNow));
+        var result = await mediator.Send(query);
+        return result.Match(
+            Ok,
+            Problem);
     }
 
     [HttpGet]

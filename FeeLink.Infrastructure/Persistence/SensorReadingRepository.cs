@@ -1,6 +1,7 @@
 using FeeLink.Application.Common.Extensions;
 using FeeLink.Application.Common.Results;
 using FeeLink.Application.Interfaces.Repositories;
+using FeeLink.Application.UseCases.Patients.Common;
 using FeeLink.Application.UseCases.Readings.Common;
 using FeeLink.Domain.Entities;
 using FeeLink.Infrastructure.Data;
@@ -15,7 +16,7 @@ public class SensorReadingRepository(FeeLinkDbContext context)
     private readonly Random _random = new Random();
 
     public async Task<ListResult<ReadingResult>> ListAsync(
-        string macAddress,
+        string? macAddress = null,
         DateTime? from = null,
         DateTime? to = null,
         Metric? metric = null,
@@ -27,7 +28,8 @@ public class SensorReadingRepository(FeeLinkDbContext context)
     {
         var query = _context.SensorReadings.AsQueryable();
 
-        query = query.Where(r => r.Toy.MacAddress == macAddress);
+        if (macAddress is not null)
+            query = query.Where(r => r.Toy.MacAddress == macAddress);
 
         if (from is not null)
             query = query.Where(r => r.CreateDate >= from);
@@ -172,24 +174,27 @@ public class SensorReadingRepository(FeeLinkDbContext context)
         var end = date.ToDateTime(TimeOnly.MaxValue);
 
         // Total de pacientes asignados al terapeuta
-        var totalPatients = await _context.TherapistAssignments
-            .Where(ta => ta.UserId == therapistId)
-            .Select(ta => ta.PatientId)
-            .Distinct()
+        var totalPatients = await _context.Patients.CountAsync();
+        
+        var patientsWithActivity = await _context.Patients.
+            Where(p => p.TherapistAssignments.Any(ta => ta.UserId == therapistId) &&
+                        p.Toy.SensorsReadings.Any(r =>
+                            r.Metric == Metric.PressurePercent &&
+                            r.CreateDate >= start &&
+                            r.CreateDate <= end))
             .CountAsync();
 
         // Pacientes con al menos una lectura de PressurePercent en el rango
-        var patientsWithActivity = await (
-            from ta in _context.TherapistAssignments
-            where ta.UserId == therapistId
-            join toy in _context.Toys on ta.PatientId equals toy.PatientId
-            join r in _context.SensorReadings on toy.Id equals r.ToyId
-            where
-                r.Metric == Metric.PressurePercent &&
-                r.CreateDate >= start &&
-                r.CreateDate <= end
-            select ta.PatientId
-        ).Distinct().CountAsync();
+        // var patientsWithActivity = await (
+        //     from ta in _context.TherapistAssignments
+        //     join toy in _context.Toys on ta.PatientId equals toy.PatientId
+        //     join r in _context.SensorReadings on toy.Id equals r.ToyId
+        //     where
+        //         r.Metric == Metric.PressurePercent &&
+        //         r.CreateDate >= start &&
+        //         r.CreateDate <= end
+        //     select ta.PatientId
+        // ).Distinct().CountAsync();
 
         return new PatientActivitySummaryResult(
             PatientsWithActivity: patientsWithActivity,
@@ -274,5 +279,30 @@ public class SensorReadingRepository(FeeLinkDbContext context)
             PageSize: items.Count,
             TotalPages: 1
         ));
+    }
+
+    public async Task<PatientSummaryResult?> GetPatientSummaryAsync(Guid patientId, DateOnly date, CancellationToken cancellationToken = default)
+    {
+        var nextDay = date.AddDays(1);
+        
+        var readings = await _context.SensorReadings
+            .Where(r => r.Toy.PatientId == patientId &&
+                        r.CreateDate >= date.ToDateTime(TimeOnly.MinValue) &&
+                        r.CreateDate < nextDay.ToDateTime(TimeOnly.MinValue))
+            .ToListAsync(cancellationToken: cancellationToken);
+
+        if (!readings.Any())
+            return null;
+        
+        var total = readings.Count;
+        var stable = readings.Count(r => r.Value <= 0.60f);
+        var anxious = readings.Count(r => r.Value > 0.60f && r.Value <= 0.87f);
+        var crisis = readings.Count(r => r.Value > 0.87f);
+
+        return new PatientSummaryResult(
+            patientId,
+            StablePercentage: Math.Round((decimal)stable / total * 100, 2),
+            AnxiousPercentage: Math.Round((decimal)anxious / total * 100, 2),
+            CrisisPercentage: Math.Round((decimal)crisis / total * 100, 2));
     }
 }

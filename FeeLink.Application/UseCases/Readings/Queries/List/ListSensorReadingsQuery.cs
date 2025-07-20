@@ -7,7 +7,7 @@ using MediatR;
 namespace FeeLink.Application.UseCases.Readings.Queries.List;
 
 public record ListSensorReadingsQuery(
-    string MacAddress,
+    string? MacAddress = null,
     DateTime? From = null, 
     DateTime? To = null,
     Metric? Metric = null,

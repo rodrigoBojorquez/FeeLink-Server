@@ -5,4 +5,4 @@ using MediatR;
 
 namespace FeeLink.Application.UseCases.Toys.Queries.ListLinkedWithUser;
 
-public record ListLinkedToysWithUserQuery(Guid UserId) : IRequest<ErrorOr<ListResult<ToyResult>>>;
+public record ListToysQuery(int Page, int PageSize, Guid? UserId) : IRequest<ErrorOr<ListResult<ToyResult>>>;

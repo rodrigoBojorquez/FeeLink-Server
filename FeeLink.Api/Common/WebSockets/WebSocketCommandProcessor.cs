@@ -49,7 +49,7 @@ public static class WebSocketCommandProcessor
         var payload = new
         {
             Message = "Datos guardados correctamente",
-            Sensors = sensorDataList
+            Sensors = dataToken
         };
 
         var jsonSettings = new JsonSerializerSettings
