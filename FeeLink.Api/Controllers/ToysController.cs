@@ -32,7 +32,7 @@ public class ToysController(
         Guid PatientId);
 
     public record UpdateToyRequest(
-        string Name);
+        string Name, string MacAddress);
 
     public record ListSensorReadingsRequest(
         DateTime? From = null,
@@ -173,7 +173,7 @@ public class ToysController(
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateToy(Guid id, [FromBody] UpdateToyRequest request)
     {
-        var command = new UpdateToyCommand(id, request.Name);
+        var command = new UpdateToyCommand(id, request.Name, request.MacAddress);
         var result = await mediator.Send(command);
 
         return result.Match(
