@@ -26,7 +26,7 @@ public class RegisterCommandHandler(
         if (user is not null)
             return Errors.User.DuplicateEmail;
 
-        var devRole = await roleRepository.GetByNameAsync(FeeLinkConstants.UserBaseRole);
+        var devRole = await roleRepository.GetByNameAsync(FeeLinkConstants.TutorRole);
 
         if (devRole is null)
             return Errors.Role.NotFound;

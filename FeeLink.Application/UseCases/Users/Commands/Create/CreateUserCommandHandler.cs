@@ -15,15 +15,13 @@ public class CreateUserCommandHandler(
 {
     public async Task<ErrorOr<Created>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        if (!userService.HasSuperAccess())
-            return Errors.Role.NotAllowed;
-
         var user = new User
         {
             Name = command.Name,
             Email = command.Email,
             Password = command.Password,
             RoleId = command.RoleId,
+            CompanyId = command.CompanyId
         };
 
         user.Password = passwordService.HashPassword(user.Password);

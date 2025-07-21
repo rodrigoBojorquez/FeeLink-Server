@@ -10,5 +10,4 @@ public record UpdateUserCommand(
     string SecondLastName,
     string Email,
     string Password,
-    Guid? EntityId,
     Guid RoleId) : IRequest<ErrorOr<Updated>>;

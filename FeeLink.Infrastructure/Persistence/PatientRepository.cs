@@ -48,6 +48,7 @@ public class PatientRepository(FeeLinkDbContext context) : GenericRepository<Pat
         }).ToList();
 
         await _context.TherapistAssignments.AddRangeAsync(assignments, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task AssignTutorsAsync(Guid patientId, List<Guid> tutorIds,
@@ -63,6 +64,7 @@ public class PatientRepository(FeeLinkDbContext context) : GenericRepository<Pat
         }).ToList();
 
         await _context.TutorAssignments.AddRangeAsync(assignments, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<ListResult<Patient>> ListAsync(int page = 1, int pageSize = 10, string? search = null,
