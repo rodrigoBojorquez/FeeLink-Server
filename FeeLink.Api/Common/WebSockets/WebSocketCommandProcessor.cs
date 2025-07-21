@@ -24,50 +24,43 @@ public static class WebSocketCommandProcessor
         IMediator mediator,
         IToyRepository repo,
         string identifier,
-        WebSocketConnectionManager mgr)
+        WebSocketConnectionManager mgr,
+        SensorDataQueue queue)
     {
+        // Deserializar DTO
         var dto = dataToken.ToObject<SaveWearableData>()!;
+
+        // Obtener toy y usuarios
         var toy = await repo.GetByMacAsync(identifier);
         if (toy is null)
             return Errors.Toy.NotFound;
 
         var usersResult = await mediator.Send(new ListLinkedUsersWithToyQuery(toy.Id));
-
         if (usersResult.IsError)
             return usersResult.Errors;
 
-        var sensorDataList = dto.ToSensorData().ToList();
+        var userIds = usersResult.Value.Items.Select(u => u.Id.ToString()).ToList();
 
-        foreach (var sensor in sensorDataList)
-        {
-            var saveResult = await mediator.Send(new SaveSensorDataCommand(toy.Id, sensor.Value, sensor.Metric));
-            if (saveResult.IsError)
-                return saveResult.Errors.First();
-        }
+        // Encolar para persistencia en background
+        var item = new SensorDataQueueItem(toy.Id, dto, identifier, userIds);
+        await queue.Queue.Writer.WriteAsync(item);
 
-        // Prepara un único payload
-        var payload = new
-        {
-            Message = "Datos guardados correctamente",
-            Sensors = dataToken
-        };
-
+        // Preparar payload y enviar ACK inmediato
+        var payload = new { Message = "Datos recibidos", Sensors = dataToken };
         var jsonSettings = new JsonSerializerSettings
         {
-            Converters = { new StringEnumConverter(new CamelCaseNamingStrategy()) },
+            Converters = { new StringEnumConverter(new CamelCaseNamingStrategy()) }
         };
-
         var json = JsonConvert.SerializeObject(payload, jsonSettings);
 
-        // Enviar una sola vez al dispositivo
+        // Enviar a dispositivo ESP32
         var ws = mgr.GetSocket(identifier);
         if (ws is null || ws.State != WebSocketState.Open)
             return Errors.Toy.TurnedOff;
 
         await ws.Ok(json);
 
-        // Enviar una sola vez a cada usuario móvil vinculado
-        var userIds = usersResult.Value.Items.Select(u => u.Id.ToString());
+        // Enviar a cada usuario móvil vinculado
         foreach (var userId in userIds)
         {
             var mobile = mgr.GetSocket(userId);
@@ -162,7 +155,7 @@ public static class WebSocketCommandProcessor
     }
 
     // Extensión para convertir DTO a lista de SensorData
-    private static IEnumerable<SensorData> ToSensorData(this SaveWearableData data)
+    public static IEnumerable<SensorData> ToSensorData(this SaveWearableData data)
     {
         var list = new List<SensorData>();
         if (data.P?.Pc is float pc) list.Add(new SensorData(pc, Metric.PressurePercent));

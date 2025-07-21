@@ -94,7 +94,7 @@ public class PatientsController(
     public async Task<IActionResult> GetPatientByToyId(Guid id)
     {
         var toy = await toyRepository.GetByPatientIdAsync(id);
-        return toy is null ? Problem(Errors.Patient.NotFound) : Ok(toy.ToResult());
+        return toy is null ? Problem(Errors.Toy.NotFound) : Ok(toy.ToResult());
     }
 
     [HttpGet("{id:guid}/summary")]

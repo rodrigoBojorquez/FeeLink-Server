@@ -1,8 +1,6 @@
 using System.Text.Json.Serialization;
-using FeeLink.Api.WebSockets;
-using FeeLink.Domain.Entities;
 
-namespace FeeLink.Api.Common.Requests;
+namespace FeeLink.Infrastructure.Common.Wearable;
 
 
 public class SaveWearableData

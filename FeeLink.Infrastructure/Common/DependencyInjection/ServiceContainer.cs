@@ -3,6 +3,7 @@ using FeeLink.Application.Interfaces.Authentication;
 using FeeLink.Application.Interfaces.Repositories;
 using FeeLink.Application.Interfaces.Services;
 using FeeLink.Infrastructure.Common.Logging;
+using FeeLink.Infrastructure.Common.Wearable;
 using FeeLink.Infrastructure.Data;
 using FeeLink.Infrastructure.Data.Seeders;
 using FeeLink.Infrastructure.Persistence;
@@ -25,6 +26,7 @@ public static class ServiceContainer
         LoggingProfile.Configure(config);
         services.AddJWTAuthenticationScheme(config);
         // services.AddGoogleAuthenticationScheme(config);
+        services.AddSingleton<SensorDataQueue>();
 
         // Repositorios
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));

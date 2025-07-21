@@ -1,4 +1,5 @@
 using ErrorOr;
+using FeeLink.Api.HostedServices;
 using FeeLink.Application.Common.Errors;
 using Microsoft.AspNetCore.Diagnostics;
 
@@ -21,6 +22,7 @@ public static class ServiceContainer
         });
 
         services.AddHttpContextAccessor();
+        services.AddHostedService<SensorDataHostedService>();
 
         return services;
     }

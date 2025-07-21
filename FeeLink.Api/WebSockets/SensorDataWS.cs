@@ -19,7 +19,7 @@ public static class SensorDataWS
     {
         app.Map("/ws/sensor-data",
             async (HttpContext context, IMediator mediator, WebSocketConnectionManager socketManager,
-                IToyRepository toyRepository) =>
+                IToyRepository toyRepository, SensorDataQueue sensorDataQueue) =>
             {
                 if (!context.WebSockets.IsWebSocketRequest) return;
                 var deviceType = context.Request.Query["device"].ToString();
@@ -44,7 +44,8 @@ public static class SensorDataWS
                         new Dictionary<WearableCommandOptions, Func<JObject, Task<ErrorOr<Success>>>>
                         {
                             [WearableCommandOptions.Save] = data =>
-                                WebSocketCommandProcessor.ProcessEsp32Save(data, mediator, toyRepository, identifier, socketManager),
+                                WebSocketCommandProcessor.ProcessEsp32Save(data, mediator, toyRepository, identifier,
+                                    socketManager, sensorDataQueue),
                             [WearableCommandOptions.GetDataSendingStatus] = data =>
                                 WebSocketCommandProcessor.WearableResponseWithSendingStatus(data, socketManager)
                         }
@@ -54,8 +55,11 @@ public static class SensorDataWS
                         webSocket,
                         new Dictionary<WearableCommandOptions, Func<JObject, Task<ErrorOr<Success>>>>
                         {
-                            [WearableCommandOptions.SwitchSendingStatus] = data => WebSocketCommandProcessor.SwitchSendingStatus(identifier, data, socketManager, toyRepository),
-                            [WearableCommandOptions.GetDataSendingStatus] = data => WebSocketCommandProcessor.MobileRequestSendingStatus(data, socketManager)
+                            [WearableCommandOptions.SwitchSendingStatus] = data =>
+                                WebSocketCommandProcessor.SwitchSendingStatus(identifier, data, socketManager,
+                                    toyRepository),
+                            [WearableCommandOptions.GetDataSendingStatus] = data =>
+                                WebSocketCommandProcessor.MobileRequestSendingStatus(data, socketManager)
                         }
                     )
                 };
@@ -73,13 +77,17 @@ public static class SensorDataWS
                     var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client", CancellationToken.None);
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client",
+                            CancellationToken.None);
                         socketManager.RemoveSocket(identifier);
                         break;
                     }
+
                     if (result.MessageType != WebSocketMessageType.Text)
                     {
-                        await webSocket.Problem([Error.Validation("WebSocket.InvalidMessageType", "Se esperaba mensaje de texto")]);
+                        await webSocket.Problem([
+                            Error.Validation("WebSocket.InvalidMessageType", "Se esperaba mensaje de texto")
+                        ]);
                         continue;
                     }
 
@@ -115,8 +123,8 @@ public static class SensorDataWS
             return;
         }
 
-        var result= await action(baseReq.Data);
-        
+        var result = await action(baseReq.Data);
+
         if (result.IsError)
             await ws.Problem(result.Errors);
     }
