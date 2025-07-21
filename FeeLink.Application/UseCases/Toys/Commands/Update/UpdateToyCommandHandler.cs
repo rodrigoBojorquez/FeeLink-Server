@@ -14,8 +14,8 @@ public class UpdateToyCommandHandler(IToyRepository toyRepository) : IRequestHan
         if (toy is null)
             return Errors.Toy.NotFound;
         
-
         toy.Name = request.Name;
+        toy.MacAddress = request.MacAddress;
 
         await toyRepository.UpdateAsync(toy);
         return Result.Updated;

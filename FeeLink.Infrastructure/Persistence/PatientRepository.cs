@@ -94,24 +94,41 @@ public class PatientRepository(FeeLinkDbContext context) : GenericRepository<Pat
             .AnyAsync(p => p.Toy != null, cancellationToken);
     }
 
-    public async Task<ListResult<Patient>> ListAvailableAsync(int page = 1, int pageSize = 10, string? search = null, Guid? therapistId = null,
-        Guid? tutorId = null, CancellationToken cancellationToken = default)
+    public async Task<ListResult<Patient>> ListAvailableAsync(
+        int page = 1,
+        int pageSize = 10,
+        string? search = null,
+        Guid? therapistId = null,
+        Guid? tutorId = null,
+        CancellationToken cancellationToken = default)
     {
-        var query = _context.Patients
-            .Include(p => p.Toy)
-            .Where(p => p.Toy == null &&
-                        (string.IsNullOrEmpty(search) || p.Name.Contains(search) || p.LastName.Contains(search)) &&
-                        (!therapistId.HasValue || p.TherapistAssignments.Any(ta => ta.UserId == therapistId)) &&
-                        (!tutorId.HasValue || p.TutorAssignments.Any(ta => ta.UserId == tutorId)));
+        // Subconsulta con los IDs de pacientes que tienen Toy
+        var patientsWithToy = _context.Toys
+            .Select(t => t.PatientId);
 
-        var data = await query
+        var baseQuery = _context.Patients
+            .Where(p => !patientsWithToy.Contains(p.Id)
+                        && (string.IsNullOrEmpty(search)
+                            || p.Name.Contains(search)
+                            || p.LastName.Contains(search))
+                        && (!therapistId.HasValue
+                            || p.TherapistAssignments.Any(ta => ta.UserId == therapistId))
+                        && (!tutorId.HasValue
+                            || p.TutorAssignments.Any(ta => ta.UserId == tutorId)));
+
+        var totalCount = await baseQuery.CountAsync(cancellationToken);
+
+        var data = await baseQuery
+            .OrderBy(p => p.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        return new ListResult<Patient>(Items: data, TotalItems: totalCount, Page: page, PageSize: pageSize,
+        return new ListResult<Patient>(
+            Items: data,
+            TotalItems: totalCount,
+            Page: page,
+            PageSize: pageSize,
             TotalPages: totalCount.GetTotalPages(pageSize));
     }
 }
