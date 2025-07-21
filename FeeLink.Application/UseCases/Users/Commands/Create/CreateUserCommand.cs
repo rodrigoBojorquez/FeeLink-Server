@@ -9,5 +9,5 @@ public record CreateUserCommand(
     string SecondLastName,
     string Email,
     string Password,
-    Guid? EntityId,
+    Guid CompanyId,
     Guid RoleId) : IRequest<ErrorOr<Created>>;

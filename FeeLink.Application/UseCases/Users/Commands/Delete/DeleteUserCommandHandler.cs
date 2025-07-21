@@ -12,12 +12,9 @@ public class DeleteUserCommandHandler(IRepository<User> repository, IAuthService
 {
     public async Task<ErrorOr<Unit>> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
     {
-        if (!userService.HasSuperAccess())
-        {
-            var userId = userService.GetUserId();
-            if (userId != command.Id)
-                return Errors.Authentication.NotAuthorized;
-        }
+        var userId = userService.GetUserId();
+        if (userId != command.Id)
+            return Errors.Authentication.NotAuthorized;
 
         var user = await repository.GetByIdAsync(command.Id);
 

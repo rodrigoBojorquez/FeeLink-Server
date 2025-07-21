@@ -15,9 +15,6 @@ public class UpdateUserCommandHandler(
 {
     public async Task<ErrorOr<Updated>> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
     {
-        if (!userService.HasSuperAccess())
-            return Errors.Role.NotAllowed;
-
         var user = await repository.GetByIdAsync(command.Id);
 
         if (user is null)

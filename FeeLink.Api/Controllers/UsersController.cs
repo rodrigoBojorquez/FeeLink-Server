@@ -36,7 +36,7 @@ public class UsersController(
         string SecondLastName,
         string Email,
         string Password,
-        Guid? EntityId,
+        Guid CompanyId,
         Guid RoleId);
 
     public record UserUpdateProfileRequest(
@@ -50,7 +50,6 @@ public class UsersController(
         string SecondLastName,
         string Email,
         string Password,
-        Guid? EntityId,
         Guid RoleId);
     
     public record ListPatientsByUserRequest(
@@ -70,12 +69,6 @@ public class UsersController(
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetUser(Guid id)
     {
-        if (!userService.HasSuperAccess())
-        {
-            if (userService.GetUserId() != id)
-                return Problem(Errors.Authentication.NotAuthorized);
-        }
-
         var user = await repository.GetByIdAsync(id);
 
         return user is null ? Problem(Errors.User.NotFound) : Ok(user.ToResult());
@@ -85,7 +78,7 @@ public class UsersController(
     public async Task<IActionResult> CreateUser(UserCreateRequest request)
     {
         var command = new CreateUserCommand(request.Name, request.FirstLastName, request.SecondLastName,
-            request.Email, request.Password, request.EntityId, request.RoleId);
+            request.Email, request.Password, request.CompanyId, request.RoleId);
         var result = await mediator.Send(command);
 
         return result.Match(
@@ -97,7 +90,7 @@ public class UsersController(
     public async Task<IActionResult> UpdateUser(Guid id, UserUpdateRequest request)
     {
         var command = new UpdateUserCommand(id, request.Name, request.FirstLastName, request.SecondLastName,
-            request.Email, request.Password, request.EntityId, request.RoleId);
+            request.Email, request.Password, request.RoleId);
         var result = await mediator.Send(command);
 
         return result.Match(
