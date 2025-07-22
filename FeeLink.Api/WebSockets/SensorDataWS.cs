@@ -59,7 +59,10 @@ public static class SensorDataWS
                                 WebSocketCommandProcessor.SwitchSendingStatus(identifier, data, socketManager,
                                     toyRepository),
                             [WearableCommandOptions.GetDataSendingStatus] = data =>
-                                WebSocketCommandProcessor.MobileRequestSendingStatus(data, socketManager)
+                                WebSocketCommandProcessor.MobileRequestSendingStatus(data, socketManager),
+                            
+                            [WearableCommandOptions.DisconnectWifi] = data => 
+                                WebSocketCommandProcessor.DisconnectWifi(data, socketManager)
                         }
                     )
                 };

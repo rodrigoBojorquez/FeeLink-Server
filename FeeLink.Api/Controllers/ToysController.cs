@@ -125,6 +125,34 @@ public class ToysController(
 
         return Ok();
     }
+    
+    [HttpPost("{macAddress}/commands/disconnect-wifi")]
+    public async Task<IActionResult> DisconnectWifi(string macAddress)
+    {
+        var userIdOrError = authService.GetUserId();
+        if (userIdOrError.IsError)
+            return Problem(userIdOrError.Errors);
+
+        var linkedToysResult =
+            await mediator.Send(new ListToysQuery(Page: 1, PageSize: 10, UserId: userIdOrError.Value));
+
+        if (linkedToysResult.IsError)
+            return Problem(linkedToysResult.Errors);
+
+        if (linkedToysResult.Value.Items.All(t => t.MacAddress != macAddress))
+            return Problem(Errors.Toy.NotLinkedToUser);
+
+        var ws = webSocketConnectionManager.GetSocket(macAddress);
+
+        if (ws is null)
+            return Problem(Errors.Toy.TurnedOff);
+
+        await ws.SendCommand(
+            new SensorDataWS.WearableCommandRequest<Unit>(WearableCommandOptions.DisconnectWifi, Unit.Value));
+
+        return Ok();
+    }
+    
 
     [HttpGet("{macAddress}/readings")]
     public async Task<IActionResult> GetReadings(string macAddress, [FromQuery] ListSensorReadingsRequest request)

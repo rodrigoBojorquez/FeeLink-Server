@@ -153,6 +153,28 @@ public static class WebSocketCommandProcessor
 
         return Result.Success;
     }
+    
+    public static async Task<ErrorOr<Success>> DisconnectWifi(
+        JObject dataToken, WebSocketConnectionManager mgr)
+    {
+        var macAddress = dataToken["macAddress"]?.ToString();
+        
+        if (string.IsNullOrEmpty(macAddress))
+            return Errors.Toy.InvalidMacAddress;
+
+        var payload = new SensorDataWS.WearableCommandRequest<DisconnectWifi>(
+            WearableCommandOptions.DisconnectWifi,
+            new DisconnectWifi { MacAddress = macAddress });
+
+        var wearableWs = mgr.GetSocket(macAddress);
+
+        if (wearableWs is null || wearableWs.State != WebSocketState.Open)
+            return Errors.Toy.TurnedOff;
+
+        await wearableWs.SendCommand(payload);
+
+        return Result.Success;
+    }
 
     // Extensión para convertir DTO a lista de SensorData
     public static IEnumerable<SensorData> ToSensorData(this SaveWearableData data)

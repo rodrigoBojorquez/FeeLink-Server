@@ -5,4 +5,5 @@ public enum WearableCommandOptions
     SwitchSendingStatus,
     Save,
     GetDataSendingStatus,
+    DisconnectWifi,
 }
