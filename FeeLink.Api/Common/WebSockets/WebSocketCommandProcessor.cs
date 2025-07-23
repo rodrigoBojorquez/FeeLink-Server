@@ -93,7 +93,7 @@ public static class WebSocketCommandProcessor
             return Errors.Toy.TurnedOff;
 
         var newCommand =
-            new SensorDataWS.WearableCommandRequest<SwitchWearableDataSending>(
+            new SensorDataWs.WearableCommandRequest<SwitchWearableDataSending>(
                 WearableCommandOptions.SwitchSendingStatus,
                 new SwitchWearableDataSending { MacAddress = macAddress, SendData = sendData });
 
@@ -115,7 +115,7 @@ public static class WebSocketCommandProcessor
         if (string.IsNullOrEmpty(macAddress))
             return Errors.Toy.InvalidMacAddress;
 
-        var payload = new SensorDataWS.WearableCommandRequest<GetWearableSendingStatus>(
+        var payload = new SensorDataWs.WearableCommandRequest<GetWearableSendingStatus>(
             WearableCommandOptions.GetDataSendingStatus,
             new GetWearableSendingStatus { MacAddress = macAddress, UserId = parsedUserId.ToString() });
 
@@ -162,7 +162,7 @@ public static class WebSocketCommandProcessor
         if (string.IsNullOrEmpty(macAddress))
             return Errors.Toy.InvalidMacAddress;
 
-        var payload = new SensorDataWS.WearableCommandRequest<DisconnectWifi>(
+        var payload = new SensorDataWs.WearableCommandRequest<DisconnectWifi>(
             WearableCommandOptions.DisconnectWifi,
             new DisconnectWifi { MacAddress = macAddress });
 

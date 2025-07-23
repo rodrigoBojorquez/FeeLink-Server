@@ -92,7 +92,7 @@ public class ToysController(
         if (ws is null)
             return Problem(Errors.Toy.TurnedOff);
 
-        await ws.SendCommand(new SensorDataWS.WearableCommandRequest<SwitchWearableDataSending>(
+        await ws.SendCommand(new SensorDataWs.WearableCommandRequest<SwitchWearableDataSending>(
             WearableCommandOptions.SwitchSendingStatus,
             new SwitchWearableDataSending { MacAddress = macAddress, SendData = sendData }));
 
@@ -121,7 +121,7 @@ public class ToysController(
             return Problem(Errors.Toy.TurnedOff);
 
         await ws.SendCommand(
-            new SensorDataWS.WearableCommandRequest<Unit>(WearableCommandOptions.GetDataSendingStatus, Unit.Value));
+            new SensorDataWs.WearableCommandRequest<Unit>(WearableCommandOptions.GetDataSendingStatus, Unit.Value));
 
         return Ok();
     }
@@ -147,9 +147,11 @@ public class ToysController(
         if (ws is null)
             return Problem(Errors.Toy.TurnedOff);
 
-        await ws.SendCommand(
-            new SensorDataWS.WearableCommandRequest<Unit>(WearableCommandOptions.DisconnectWifi, Unit.Value));
-
+        await ws.SendCommand(new SensorDataWs.WearableCommandRequest<DisconnectWifi>(
+            WearableCommandOptions.DisconnectWifi,
+            new DisconnectWifi { MacAddress = macAddress }
+        ));
+        
         return Ok();
     }
     

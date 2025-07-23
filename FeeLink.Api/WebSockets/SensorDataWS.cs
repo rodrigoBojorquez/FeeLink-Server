@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace FeeLink.Api.WebSockets;
 
-public static class SensorDataWS
+public static class SensorDataWs
 {
     public record WearableCommandRequest<T>(WearableCommandOptions Cmd, T Data);
 

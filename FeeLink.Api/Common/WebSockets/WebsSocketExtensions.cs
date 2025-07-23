@@ -30,7 +30,7 @@ public static class WebsSocketExtensions
     }
     
     public static Task SendCommand<T>(
-        this WebSocket webSocket, SensorDataWS.WearableCommandRequest<T> command,
+        this WebSocket webSocket, SensorDataWs.WearableCommandRequest<T> command,
         CancellationToken cancellationToken = default)
     {
         var serializerSettings = new JsonSerializerSettings
